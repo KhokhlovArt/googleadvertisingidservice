@@ -40,12 +40,16 @@ public interface IGoogleAdvertisingIdGetter {
     // Метод получающий ID из кеша
     // @param control_parameter - параметр определяющий откуда будет идти загрузка
     // @param cnt - контекст приложения
+    // @param callSource - имя пакета приложения из которого идёт вызов
+    // @param callDestination - имя пакета приложения в кэше которого надо смотреть GAID изначально
     // @return true - сохраненный ID
     String getIDFromCache(GetIDType control_parameter, Context cnt, String callSource, String callDestination );
 
     // Метод который загружает закэшированный ID. Если кэш пуст, то возвращает оригинальгный ID
     // устройства а в случае его отсутствия генерирует фейковый и сохраняет его в кэш
     // @param cnt - контекст приложения
+    // @param callSource - имя пакета приложения из которого идёт вызов
+    // @param callDestination - имя пакета приложения в кэше которого надо смотреть GAID изначально
     // @return  - фейковый или реальный ID
     String getFakeGaid(final Context cnt, String callSource, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException;
 }
