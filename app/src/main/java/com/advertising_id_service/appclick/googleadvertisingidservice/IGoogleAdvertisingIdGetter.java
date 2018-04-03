@@ -16,7 +16,8 @@ public interface IGoogleAdvertisingIdGetter {
         GUID_TOOL
     }
     public enum GetIDType {
-        DEFAULT
+        DEFAULT,
+        ANOTHERAPPCACHE
     }
 
 

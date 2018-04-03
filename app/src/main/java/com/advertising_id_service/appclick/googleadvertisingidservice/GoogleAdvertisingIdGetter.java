@@ -1,8 +1,8 @@
 package com.advertising_id_service.appclick.googleadvertisingidservice;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.util.Log;
 
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
@@ -15,12 +15,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-import static android.content.Context.MODE_PRIVATE;
-
 public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
      private String PREFERENCES_DEFAULT_KEY       = "FAKE_GAID";
      private String PREFERENCES_SESSION           = "session_read";
-     private String PREFERENCES_SESSION_SELF_READ = "session_self_read";
 
     private static String getRandomString (int Size) {
         String eng = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -43,11 +40,7 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     private boolean saveToDefaultCache(Context cnt, String id)
     {
         try {
-            SharedPreferences prefs = cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_WORLD_READABLE);
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(PREFERENCES_DEFAULT_KEY, id);
-            editor.commit();
-            //cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_WORLD_READABLE).edit().putString(PREFERENCES_DEFAULT_KEY, id).apply();
+            cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).edit().putString(PREFERENCES_DEFAULT_KEY, id).apply();
         }
         catch (Exception e)
         {
@@ -59,19 +52,33 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     private String getIDFromDefaultCache(Context cnt, String callSource, String callDestination)
     {
         String result = null;
-        String session = (!callDestination.toString().equals(cnt.getPackageName().toString()) ) ? PREFERENCES_SESSION : PREFERENCES_SESSION_SELF_READ;
+        result = cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).getString(PREFERENCES_DEFAULT_KEY, null);
+        return result;
+    }
+
+    private String getGAIDFromAnotherAppCache(Context cnt, String callSource, String callDestination)
+    {
+        String result = null;
         if (!callDestination.toString().equals(cnt.getPackageName().toString())
                 && !callDestination.equals("") && callDestination != null
-                && !callSource.equals("") && callSource != null) {
+                && !callSource.equals("") && callSource != null
+                && !callSource.equals(callDestination)) {
+            Uri CONTACT_URI = Uri.parse(LibContentProvider.QUERY_URI + "/" + callDestination);
+            Cursor cursor = null;
             try {
-                Context external_context = cnt.createPackageContext(callDestination, 0);
-                result  = external_context.getSharedPreferences(session, Context.MODE_PRIVATE).getString(PREFERENCES_DEFAULT_KEY, null);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
+                cursor = cnt.getContentResolver().query(CONTACT_URI, null, null, null, null);
+                int firstNameColIndex = cursor.getColumnIndex(LibContentProvider.GAID_COL_NAME);
+                while (cursor.moveToNext()) {
+                    result = cursor.getString(firstNameColIndex);
+                }
             }
-        }
-        if (result == null) {
-            result = cnt.getSharedPreferences(session, Context.MODE_PRIVATE).getString(PREFERENCES_DEFAULT_KEY, null);
+            catch (Exception e){
+            }
+            finally {
+                if(cursor != null) {
+                    cursor.close();
+                }
+            }
         }
         return result;
     }
@@ -140,6 +147,9 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
             case DEFAULT:
                 result = getIDFromDefaultCache(cnt, callSource, callDestination);
                 break;
+            case ANOTHERAPPCACHE:
+                result = getGAIDFromAnotherAppCache(cnt, callSource, callDestination);
+                break;
             default:
                 result = null;
                 break;
@@ -154,13 +164,17 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     @Override
     public String getFakeGaid(final Context cnt, String callSource, String callDestination ) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
         String id = null;
-
-        id = getIDFromCache(cnt, callSource, callDestination);
+        id = getIDFromCache(cnt, "", ""); //Вначале смотрим в локальном кэше
         if (id == null || id.equals(""))
         {
-            id = getOriginalID(cnt);
-            if (id == null)
-            {
+            id = getIDFromCache(GetIDType.ANOTHERAPPCACHE, cnt, callSource, callDestination); //если в локальном кэше пусто, тогда смотрим в кэше приложения callDestination
+            if (id == null || id.equals("")) {
+                try {
+                    id = getOriginalID(cnt);
+                }catch (Exception e){
+                }
+            }
+            if (id == null || id.equals("")) {
                 id = generateGUID();
             }
             saveToCache(cnt, id);
