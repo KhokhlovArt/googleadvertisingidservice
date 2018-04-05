@@ -1,4 +1,4 @@
-package com.advertising_id_service.appclick.googleadvertisingidservice;
+package com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID;
 
 import android.Manifest;
 import android.content.Context;

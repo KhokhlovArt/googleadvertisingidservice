@@ -15,8 +15,8 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import java.io.IOException;
 
 public class LibContentProvider extends ContentProvider {
-    static String GAID_COL_NAME = "gaid";
-    static String QUERY_URI = "content://advertising_id_service.appclick.googleadvertisingidservice/get_gaid";
+    static public String GAID_COL_NAME = "gaid";
+    static public String QUERY_URI = "content://advertising_id_service.appclick.googleadvertisingidservice/get_gaid";
     @Override
     public boolean onCreate() {
         return false;
@@ -28,7 +28,7 @@ public class LibContentProvider extends ContentProvider {
         //String data = new GoogleAdvertisingIdGetter().getIDFromCache(getContext(), "", "");
         String data = null;
         try {
-            data = new GoogleAdvertisingIdGetter().getFakeGaid(getContext(), "", "");
+            data = new GoogleAdvertisingIdGetter().getFakeGaid(getContext() /*, "", ""*/);
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         } catch (IOException e) {
