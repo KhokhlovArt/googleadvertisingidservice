@@ -21,6 +21,8 @@ public class MixIDGenerator extends IDGenerator implements IGenerator {
         String devicIMEI2 = "none";
         String devicIMEI3 = "none";
         String androidID  = "none";
+
+
         if (context != null) {
             TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {

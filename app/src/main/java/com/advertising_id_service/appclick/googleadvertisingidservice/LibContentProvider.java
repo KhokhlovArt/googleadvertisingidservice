@@ -28,7 +28,7 @@ public class LibContentProvider extends ContentProvider {
         //String data = new GoogleAdvertisingIdGetter().getIDFromCache(getContext(), "", "");
         String data = null;
         try {
-            data = new GoogleAdvertisingIdGetter().getFakeGaid(getContext() /*, "", ""*/);
+            data = new GoogleAdvertisingIdGetter().getGAID(getContext(), "");
         } catch (GooglePlayServicesNotAvailableException e) {
             e.printStackTrace();
         } catch (IOException e) {

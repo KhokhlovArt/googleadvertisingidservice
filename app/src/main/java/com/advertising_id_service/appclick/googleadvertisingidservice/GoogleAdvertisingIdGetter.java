@@ -111,7 +111,7 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
 
     @Override
     public String getFakeGaid(final Context cnt /*, String callSource, String callDestination*/ ) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
-        return generateGUID(cnt);
+        return generateGUID(GenerateIDType.MIX, cnt);
 // // Если надо делать проверку на наличие закэшированного ID или наличия оригинального
 //        String id = null;
 //        id = getIDFromCache(cnt, "", ""); //Вначале смотрим в локальном кэше
@@ -137,7 +137,7 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
         String result;
         switch (control_parameter) {
             case DEFAULT:
-                result = new MixIDGenerator().setContext(cnt).generateId().getId();
+                result = new RandomIDGenerator().generateId().getId();
                 break;
             case MIX:
                 result = new MixIDGenerator().setContext(cnt).generateId().getId();
@@ -196,6 +196,37 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
         }
         return result;
     }
+
+    @Override
+    public String getGAID(Context cnt, String callDestination)  throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        String id = null;
+        String callSource = cnt.getPackageName();
+        if (callDestination.equals("") || callDestination == null) {
+            id = getIDFromCache(cnt, "", ""); //Вначале смотрим в локальном кэше
+            if (id == null || id.equals("")) {
+                //id = getIDFromCache(GetIDType.ANOTHERAPPCACHE, cnt, callSource, callDestination); //если в локальном кэше пусто, тогда смотрим в кэше приложения callDestination
+                if (id == null || id.equals("")) {
+                    try {
+                        id = getOriginalID(cnt);
+                    } catch (Exception e) {
+                    }
+                }
+                if (id == null || id.equals("")) {
+                    id = generateGUID(cnt);
+                }
+                saveToCache(cnt, id);
+            }
+        }
+        else
+        {
+            id = getIDFromCache(GetIDType.ANOTHERAPPCACHE, cnt, callSource, callDestination);
+            if (id == null || id.equals("")) {
+                id = getGAID(cnt, "");
+            }
+        }
+        return id;
+    }
+
     public String getInnerPublisherIDs(Context cnt, String key) {
         return getInnerPublisherIDs(PublusherIDType.DEFAULT, cnt, key);
     }

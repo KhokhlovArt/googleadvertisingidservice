@@ -7,7 +7,7 @@ import java.util.Random;
 public abstract class IDGenerator implements IGenerator{
     Context context;
     protected static String getRandomString (int Size) {
-        String eng = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String eng = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         String res = "";
         Random r = new Random();
         for(int i = 0; i < Size; i++)

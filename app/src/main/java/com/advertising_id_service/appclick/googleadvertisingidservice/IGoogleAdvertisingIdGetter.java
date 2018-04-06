@@ -78,4 +78,6 @@ public interface IGoogleAdvertisingIdGetter {
     //@param key - ключ мотоданных по которому надо искать
     // @return  -  List всех идентификаторов из файлов найденых на устройстве
     String getInnerPublisherIDs(PublusherIDType control_parameter, Context cnt, String key);
+
+    String getGAID(final Context cnt, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException;
 }
