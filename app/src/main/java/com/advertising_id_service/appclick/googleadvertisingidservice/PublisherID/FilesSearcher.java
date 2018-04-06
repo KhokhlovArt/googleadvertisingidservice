@@ -30,6 +30,17 @@ public class FilesSearcher {
 
         if (Build.VERSION.SDK_INT >= 23) {
             if (!checkPermission(cnt)) {
+                allFiles.add("No permissions for reading the storage");
+                return allFiles;
+            }
+        }
+        else
+        {
+            String permission = "android.permission.READ_EXTERNAL_STORAGE";
+            int res = cnt.checkCallingOrSelfPermission(permission);
+            if (res != PackageManager.PERMISSION_GRANTED)
+            {
+                allFiles.add("No permissions for reading the storage");
                 return allFiles;
             }
         }
