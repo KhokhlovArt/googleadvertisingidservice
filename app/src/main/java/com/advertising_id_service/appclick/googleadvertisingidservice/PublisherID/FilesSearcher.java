@@ -89,7 +89,7 @@ public class FilesSearcher {
         {
             if (strId.substring(0,tmp[i].length()).equals(tmp[i]))
             {
-                strId = strId.replaceFirst(tmp[i], "");
+                strId = strId.replaceFirst("(?i)" + tmp[i], "");
                 break;
             }
         }
