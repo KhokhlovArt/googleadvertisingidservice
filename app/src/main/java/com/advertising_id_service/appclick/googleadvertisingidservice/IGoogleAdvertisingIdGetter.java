@@ -1,5 +1,6 @@
 package com.advertising_id_service.appclick.googleadvertisingidservice;
 
+import android.app.Activity;
 import android.content.Context;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
@@ -18,6 +19,7 @@ public interface IGoogleAdvertisingIdGetter {
         DEFAULT,
         MIX,
         GUID_TOOL,
+        REAL_GUID,
         RANDOM
     }
     public enum GetIDType {
@@ -80,4 +82,5 @@ public interface IGoogleAdvertisingIdGetter {
     String getInnerPublisherIDs(PublusherIDType control_parameter, Context cnt, String key);
 
     String getGAID(final Context cnt, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException;
+
 }

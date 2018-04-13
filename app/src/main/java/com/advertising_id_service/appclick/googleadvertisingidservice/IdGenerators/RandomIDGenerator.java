@@ -15,7 +15,7 @@ public class RandomIDGenerator extends IDGenerator implements IGenerator {
 //        SimpleDateFormat formatter = new SimpleDateFormat("ddMMyyHH-mmss-SSS");
 //        GUID id = new GUID(formatter.format(currentTime) + getRandomString(1) + "-" + getRandomString(4) + "-" + getRandomString(12));
 
-        GUID id = new GUID("fakegaid" + "-" + getRandomString(4) + "-" + getRandomString(4)  + "-" + getRandomString(4) + "-" + getRandomString(12));
+        GUID id = new GUID("gaid" + getRandomString(4) + "-" + getRandomString(4) + "-" + getRandomString(4)  + "-" + getRandomString(4) + "-" + getRandomString(12));
         return id;
     }
 }

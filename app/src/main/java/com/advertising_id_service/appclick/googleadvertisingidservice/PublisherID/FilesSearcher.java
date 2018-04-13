@@ -98,7 +98,7 @@ public class FilesSearcher {
         String[] tmp = pref.split(",");
         for (int i = 0; i < tmp.length; i++ )
         {
-            if (strId.substring(0,tmp[i].length()).equals(tmp[i]))
+            if (strId.toUpperCase().substring(0,tmp[i].length()).equals(tmp[i].toUpperCase()))
             {
                 strId = strId.replaceFirst("(?i)" + tmp[i], "");
                 break;
@@ -108,7 +108,10 @@ public class FilesSearcher {
         tmp = extension.split(",");
         for (int i = 0; i < tmp.length; i++ )
         {
-            strId = strId.replace(tmp[i].toString(), "");
+            if (strId.length() >= tmp[i].length()) {
+                strId = strId.substring(0, strId.length() - tmp[i].length());
+                break;
+            }
         }
         strId = strId.replaceFirst(seporator, "");
 
@@ -191,6 +194,7 @@ public class FilesSearcher {
 
     private void search(File topDirectory, List res, int objectType) {
         File[] list = topDirectory.listFiles();
+        if( list == null){return;}
         for(int i = 0; i < list.length; i++) {
             if(list[i].isDirectory()) {
                 if(objectType != FILES && accept(list[i].getName())) {
