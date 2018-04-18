@@ -2,12 +2,16 @@ package com.advertising_id_service.appclick.googleadvertisingidservice;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.v4.app.LoaderManager;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 
 public interface IGoogleAdvertisingIdGetter {
@@ -33,6 +37,7 @@ public interface IGoogleAdvertisingIdGetter {
         FROM_FILE
     }
 
+    String getVersion();
     // Метод получения оригинального GAID-а
     // @param cnt - контекст в рамках которого возвращается GAID
     // @return строку содержащую оригинальный GAID (Пример: 2QEsaZ-1ds2-547F-FxSa-SADdAwDALoix )
@@ -82,5 +87,16 @@ public interface IGoogleAdvertisingIdGetter {
     String getInnerPublisherIDs(PublusherIDType control_parameter, Context cnt, String key);
 
     String getGAID(final Context cnt, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException;
+
+    //*****************************************************************************
+    //************************ Методы работы с REST *******************************
+    //*****************************************************************************
+    void rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
+    void rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
+    void rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass);
+    ResultRead rest_read(final Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass);
+    void rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
+
+    //<T> T callExternalMethod(String methodName, HashMap params);
 
 }

@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.DAO.AnotherAppCacheDAO;
 import com.advertising_id_service.appclick.googleadvertisingidservice.DAO.SelfCacheDAO;
+import com.advertising_id_service.appclick.googleadvertisingidservice.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GUID.GUID;
 import com.advertising_id_service.appclick.googleadvertisingidservice.IdGenerators.MixIDGenerator;
 import com.advertising_id_service.appclick.googleadvertisingidservice.IdGenerators.RandomIDGenerator;
@@ -28,10 +29,13 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     private static final String LOGTAG = "GAIDGetter";
+    public  static final String EXTERNAL_PACKAGE_NAME = "com.adid_service.external_lib.external_code_lib";
+
     private List<String> getFilePublisherID(Context cnt, PublisherIDMask mask)
     {
         List files;
@@ -103,11 +107,24 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
         return ((ActivityCompat.checkSelfPermission(cnt.getApplicationContext(), Manifest.permission.INTERNET) == PackageManager.PERMISSION_GRANTED)&&
             (ActivityCompat.checkSelfPermission(cnt.getApplicationContext(), Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED));
     }
+
+    //*********** Служебные методы для работы с внешней библиотекой ***************
+
     //*****************************************************************************
     //************************ Методы доступные пользователям *********************
     //*****************************************************************************
     @Override
+    public String getVersion()
+    {
+        return "1.7.1";
+    }
+
+    @Override
     public String getOriginalID(final Context cnt) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            return new GoogleAdvertisingIdGetter_FromExternalLib().getOriginalID(cnt);
+        }
+
         String realGAID = "";
         AdvertisingIdClient.Info adInfo = null;
         adInfo = AdvertisingIdClient.getAdvertisingIdInfo(cnt);
@@ -123,6 +140,9 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
 
     @Override
     public String getFakeGaid(final Context cnt /*, String callSource, String callDestination*/ ) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            return new GoogleAdvertisingIdGetter_FromExternalLib().getFakeGaid(cnt);
+        }
         return generateGUID(GenerateIDType.MIX, cnt);
 // // Если надо делать проверку на наличие закэшированного ID или наличия оригинального
 //        String id = null;
@@ -146,6 +166,9 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
 
     @Override
     public String generateGUID(GenerateIDType control_parameter, Context cnt) {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            return new GoogleAdvertisingIdGetter_FromExternalLib().generateGUID(control_parameter, cnt);
+        }
         String result;
         switch (control_parameter) {
             case DEFAULT:
@@ -214,6 +237,9 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
 
     @Override
     public String getGAID(Context cnt, String callDestination)  throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            return new GoogleAdvertisingIdGetter_FromExternalLib().getGAID(cnt, callDestination);
+        }
 
         new InstallationInfo().saveDateFirstStart(cnt); // сохраняем время первого запуска(запроса guid-а)
 
@@ -260,8 +286,13 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
     // @param login           - логин клиента
     // @param pass            - пароль клиента
+    @Override
     public void rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
     {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            new GoogleAdvertisingIdGetter_FromExternalLib().rest_create(cnt, lm, callDestination, login, pass);
+            return;
+        }
         if (cheekPermisons(cnt)) {
             GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
             RestServicer.getRestServicer().create(cnt, lm, callDestination, login, pass);
@@ -283,8 +314,13 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     // InstallationInfo install_info = new InstallationInfo(getApplicationContext(),"",  new PublisherIDMask("GooGames,AppLandGames,AppClickGames,gameclub", "_", ".zip,.apk"));
     // g.rest_install(getApplicationContext(), getSupportLoaderManager(), "", install_info);
     //
+    @Override
     public void rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass)
     {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            new GoogleAdvertisingIdGetter_FromExternalLib().rest_install(cnt, lm, callDestination, installInfo, login, pass);
+            return;
+        }
         if (cheekPermisons(cnt)) {
            GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
            RestServicer.getRestServicer().install(cnt, lm, callDestination, installInfo, login, pass);
@@ -301,8 +337,12 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
     // @param login           - логин клиента
     // @param pass            - пароль клиента
+    @Override
     public ResultRead rest_read(final Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass)
     {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            return new GoogleAdvertisingIdGetter_FromExternalLib().rest_read(cnt, lm, readType, callDestination, login, pass);
+        }
         if (cheekPermisons(cnt)) {
             GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
             return RestServicer.getRestServicer().read(cnt, lm, readType, callDestination, login, pass);
@@ -318,8 +358,13 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
     // @param login           - логин клиента
     // @param pass            - пароль клиента
+    @Override
     public void rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
     {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            new GoogleAdvertisingIdGetter_FromExternalLib().rest_delete(cnt, lm, callDestination, login, pass);
+            return;
+        }
         if (cheekPermisons(cnt)) {
             GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
             RestServicer.getRestServicer().delete(cnt, lm, callDestination, login, pass);
@@ -334,8 +379,13 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
     // @param login           - логин клиента
     // @param pass            - пароль клиента
+    @Override
     public void rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
     {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            new GoogleAdvertisingIdGetter_FromExternalLib().rest_delete(cnt, lm, callDestination, login, pass);
+            return;
+        }
         if (cheekPermisons(cnt)) {
             GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
             RestServicer.getRestServicer().update(cnt, lm, callDestination, login, pass);
@@ -343,5 +393,37 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
             Log.e(LOGTAG, "Has not INTERNET or READ_PHONE_STATE permission");
         }
     }
-
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

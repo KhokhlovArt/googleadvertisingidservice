@@ -2,12 +2,8 @@ package com.advertising_id_service.appclick.googleadvertisingidservice.REST.Resu
 
 import java.util.List;
 
-/**
- * Created by ahohlov on 09.04.2018.
- */
-
 public class ResultRead {
-    public class ItemParams
+    public static class ItemParams
     {
         public String model;
         public String imei1;

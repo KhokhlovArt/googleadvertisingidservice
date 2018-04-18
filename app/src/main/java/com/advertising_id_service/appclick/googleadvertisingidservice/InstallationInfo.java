@@ -27,10 +27,12 @@ public class InstallationInfo {
     public String apk_distr_path;        //путь на устройстве, не включая имя и расширение файла (отдельный справочник вместе с apk_guid)
     public String apk_istallation_path;  //путь, куда было установлено приложение
     public String date;                  //дата-время первого запуска(время первого запроса guid-а)
+    private PublisherIDMask mask;        //Маска по которой осуществлялся поиск PublisherID
 
     public InstallationInfo(){}
 
     public InstallationInfo(Context cnt, String callDestination, PublisherIDMask mask) {
+        setMask(mask);
         updateGuid(cnt, callDestination);
         updateInstallationGuid(cnt);
         updateAppId(cnt);
@@ -108,5 +110,13 @@ public class InstallationInfo {
             start_date = formatter.format(currentTime);
             cnt.getSharedPreferences(session, Context.MODE_PRIVATE).edit().putString(INSTALLATION_DATE_START, start_date).apply();
         }
+    }
+
+    public PublisherIDMask getMask() {
+        return mask;
+    }
+
+    public void setMask(PublisherIDMask mask) {
+        this.mask = mask;
     }
 }
