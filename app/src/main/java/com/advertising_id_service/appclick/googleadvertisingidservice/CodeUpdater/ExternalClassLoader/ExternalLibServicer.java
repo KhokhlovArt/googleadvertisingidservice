@@ -1,31 +1,23 @@
-package com.advertising_id_service.appclick.googleadvertisingidservice.ExternalClassLoader;
+package com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader;
 
 import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Environment;
 
-import java.io.BufferedInputStream;
+import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 import dalvik.system.DexClassLoader;
 
 public class ExternalLibServicer {
-    static String FILE_NAME       = "classes.dex";
-    static String URL_TO_DEX_FILE = "http://fake_gaid.appclick.org/www/upload/classes.dex";
     static DexClassLoader dexClassLoader;
     private static ExternalLibServicer instance = null;
 
     private ExternalLibServicer(Context cnt){
-        String filePath = getDexFilePath(cnt);
+        String filePath = getDexFilePath(cnt); //!!! TODO: возможно надо сохранять отдельно как релизную так и дебажную версию
         File dexFile = new File(filePath);
         File codeCacheDir = new File(cnt.getCacheDir() + File.separator + "codeCache");
         codeCacheDir.mkdirs();
@@ -50,11 +42,19 @@ public class ExternalLibServicer {
         return (dexClassLoader != null);
     }
 
-    private static String getDexFilePath(Context cnt)
+    public static String getDexFilePath(Context cnt)
     {
-        return  "" + cnt.getCacheDir()+ File.separator + FILE_NAME;
-//        return  "" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator + FILE_NAME;
+        return "" + GlobalParameters.DexFilePath(cnt);
     }
+
+//    public static String getReleaseDexFilePath(Context cnt)
+//    {
+//        return "" + GlobalParameters.DexReleaseFilePath(cnt);
+//    }
+//    public static String getDebugDexFilePath(Context cnt)
+//    {
+//        return "" + GlobalParameters.DexDebugFilePath(cnt);
+//    }
 
     public Class getExternalClass(Context cnt, String className)
     {
@@ -163,84 +163,6 @@ public class ExternalLibServicer {
             return (T) clazz.getEnumConstants()[i];
         }
         return null;
-    }
-
-    /*****************************************************************
-     ********** Методы загрузки файла из внешнего источника **********
-    *****************************************************************/
-    private static int downloadBinaryFile(String query, File dest) {
-        int count;
-
-        OutputStream output;
-        HttpURLConnection connection = null;
-        try {
-            URL url = new URL(query);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.connect();
-
-            long modified = connection.getLastModified();
-
-            System.out.println(query + " " + connection.getResponseCode());
-            // this will be useful so that you can show a tipical 0-100%
-            // progress bar
-
-            int lengthOfFile = connection.getContentLength();
-
-            //LogKES.debug(query + " " + lenghtOfFile);
-
-            byte[] buffer = new byte[1024];
-            // download the file
-            InputStream input = new BufferedInputStream(url.openStream(), buffer.length);
-
-            // Output stream
-            output = new FileOutputStream(dest);
-
-
-            while ((count = input.read(buffer)) != -1) {
-                output.write(buffer, 0, count);
-                output.flush();
-            }
-
-            // flushing output
-            output.flush();
-
-            // closing streams
-            output.close();
-            input.close();
-
-            dest.setLastModified(modified);
-
-            if (dest.length() != lengthOfFile) {
-                System.out.println(query + " -2");
-                return -2;
-            } else {
-                System.out.println(query + " 0");
-                return 0;
-            }
-        } catch (Exception e) {
-            System.out.println(query + " " + e.getMessage());
-            return -1;
-        } finally {
-            if (connection != null) connection.disconnect();
-        }
-    }
-
-    public static void loadDexFile(final Context cnt)
-    {
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                File file = null;
-                String filePath = getDexFilePath(cnt);
-                File tmpFile = new File(filePath);
-                if(tmpFile.exists()) {
-                    tmpFile.delete();
-                }
-                //file = File.createTempFile("class_file.dex", null, getApplicationContext().getCacheDir());
-                file = new File(filePath);
-                downloadBinaryFile(URL_TO_DEX_FILE, file);
-            }
-        });
     }
 
 }

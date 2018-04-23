@@ -1,9 +1,10 @@
-package com.advertising_id_service.appclick.googleadvertisingidservice;
+package com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation;
 
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.LoaderManager;
 
+import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
@@ -37,7 +38,7 @@ public interface IGoogleAdvertisingIdGetter {
         FROM_FILE
     }
 
-    String getVersion();
+    String getVersion(Context cnt);
     // Метод получения оригинального GAID-а
     // @param cnt - контекст в рамках которого возвращается GAID
     // @return строку содержащую оригинальный GAID (Пример: 2QEsaZ-1ds2-547F-FxSa-SADdAwDALoix )

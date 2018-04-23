@@ -1,11 +1,12 @@
-package com.advertising_id_service.appclick.googleadvertisingidservice;
+package com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.support.v4.app.LoaderManager;
-import android.util.Log;
 
-import com.advertising_id_service.appclick.googleadvertisingidservice.ExternalClassLoader.ExternalLibServicer;
+import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
+import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
+import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
@@ -19,14 +20,20 @@ import java.util.List;
 
 public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdvertisingIdGetter {
     @Override
-    public String getVersion() {
-        return "---";
+    public String getVersion(Context cnt) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getVersion()");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
+        String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "getVersion", new Object[]{cnt}, new Class[]{Context.class});
+        return str;
     }
 
     @Override
     public String getOriginalID(Context cnt) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getOriginalID()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "getOriginalID", new Object[]{cnt}, new Class[]{Context.class});
         return str;
@@ -34,9 +41,10 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public String generateGUID(GenerateIDType control_parameter, Context cnt) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.generateGUID()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class clazzEnumGenerateIDType        = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".IGoogleAdvertisingIdGetter$GenerateIDType");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzEnumGenerateIDType        = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter$GenerateIDType");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "generateGUID",
                                                 new Object[]{
@@ -52,8 +60,9 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public String getFakeGaid(Context cnt) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getFakeGaid()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "getFakeGaid", new Object[]{cnt}, new Class[]{Context.class});
         return str;
@@ -61,10 +70,11 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public List<String> getFilePublisherIDs(PublusherIDType control_parameter, Context cnt, PublisherIDMask mask) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getFilePublisherIDs()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class clazzMask                      = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
-        Class clazzEnumPublusherIDType       = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".IGoogleAdvertisingIdGetter$PublusherIDType");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzMask                      = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
+        Class clazzEnumPublusherIDType       = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter$PublusherIDType");
 
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         Object instanceMask                  = loader.getInstance(clazzMask,
@@ -96,9 +106,10 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public String getInnerPublisherIDs(PublusherIDType control_parameter, Context cnt, String key) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getInnerPublisherIDs()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class clazzEnumPublusherIDType       = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".IGoogleAdvertisingIdGetter$PublusherIDType");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzEnumPublusherIDType       = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter$PublusherIDType");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "getInnerPublisherIDs",
                 new Object[]{
@@ -116,8 +127,9 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public String getGAID(Context cnt, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getGAID()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "getGAID", new Object[]{cnt, callDestination}, new Class[]{Context.class, String.class});
         return str;
@@ -128,8 +140,9 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     //*****************************************************************************
     @Override
     public void rest_create(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_create()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_create",
                 new Object[]{
@@ -148,8 +161,9 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public void rest_update(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_update()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_update",
                 new Object[]{
@@ -168,12 +182,13 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public void rest_install(Context cnt, LoaderManager lm, String callDestination, InstallationInfo _installInfo, String login, String pass) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_install()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
         PublisherIDMask m   = _installInfo.getMask();
 
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class clazzPublisherIDMask           = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
-        Class clazzInstallationInfo          = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".InstallationInfo");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzPublisherIDMask           = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
+        Class clazzInstallationInfo          = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".InstallationInfo");
 
         Object instance     = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         Object Mask         = loader.getInstance(clazzPublisherIDMask,  new Object[]{m.getPrefix(),m.getSeporator(),m.getExtension()},  new Class[]{String.class,String.class,String.class});
@@ -198,11 +213,12 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 
     @Override
     public ResultRead rest_read(Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_read()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class IApi_RestReadType              = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".REST.IApi$RestReadType");
-        Class resultRead                     = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead");
-        Class resultRead_ItemParams          = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead$ItemParams");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class IApi_RestReadType              = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.IApi$RestReadType");
+        Class resultRead                     = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead");
+        Class resultRead_ItemParams          = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead$ItemParams");
 
         Object instance = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         Object res      = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_read",
@@ -229,43 +245,46 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
         resRead.found_by  = loader.getAttribute(resultRead,res,"found_by");
         resRead.guids = new ArrayList<>();
         List<Object> res_ItemParams = loader.getAttribute(resultRead,res,"guids");
-        for (Iterator<Object> elem = res_ItemParams.iterator(); elem.hasNext(); ) {
-            ResultRead.ItemParams resRead_itemparams = new ResultRead.ItemParams();
-            Object obj = elem.next();
-            resRead_itemparams.model         = loader.getAttribute(resultRead_ItemParams,obj,"model");
-            resRead_itemparams.imei1         = loader.getAttribute(resultRead_ItemParams,obj,"model");
-            resRead_itemparams.imei2         = loader.getAttribute(resultRead_ItemParams,obj,"imei2");
-            resRead_itemparams.imei3         = loader.getAttribute(resultRead_ItemParams,obj,"imei3");
-            resRead_itemparams.guid          = loader.getAttribute(resultRead_ItemParams,obj,"guid");
-            resRead_itemparams.device        = loader.getAttribute(resultRead_ItemParams,obj,"device");
-            resRead_itemparams.ua            = loader.getAttribute(resultRead_ItemParams,obj,"ua");
-            resRead_itemparams.brand         = loader.getAttribute(resultRead_ItemParams,obj,"brand");
-            resRead_itemparams.product_id    = loader.getAttribute(resultRead_ItemParams,obj,"product_id");
-            resRead_itemparams.guid_source   = loader.getAttribute(resultRead_ItemParams,obj,"guid_source");
-            resRead_itemparams.imsi1         = loader.getAttribute(resultRead_ItemParams,obj,"imsi1");
-            resRead_itemparams.imsi2         = loader.getAttribute(resultRead_ItemParams,obj,"imsi2");
-            resRead_itemparams.imsi3         = loader.getAttribute(resultRead_ItemParams,obj,"imsi3");
-            resRead_itemparams.msisdn1       = loader.getAttribute(resultRead_ItemParams,obj,"msisdn1");
-            resRead_itemparams.msisdn2       = loader.getAttribute(resultRead_ItemParams,obj,"msisdn2");
-            resRead_itemparams.msisdn3       = loader.getAttribute(resultRead_ItemParams,obj,"msisdn3");
-            resRead_itemparams.ua_uuid       = loader.getAttribute(resultRead_ItemParams,obj,"ua_uuid");
-            resRead_itemparams.display_hight = loader.getAttribute(resultRead_ItemParams,obj,"display_hight");
-            resRead_itemparams.android_id    = loader.getAttribute(resultRead_ItemParams,obj,"android_id");
-            resRead_itemparams.display_width = loader.getAttribute(resultRead_ItemParams,obj,"display_width");
-            resRead_itemparams.login         = loader.getAttribute(resultRead_ItemParams,obj,"login");
-            resRead_itemparams.date          = loader.getAttribute(resultRead_ItemParams,obj,"date");
-            resRead_itemparams.manufactor    = loader.getAttribute(resultRead_ItemParams,obj,"manufactor");
-            resRead_itemparams.ip            = loader.getAttribute(resultRead_ItemParams,obj,"ip");
-            resRead_itemparams.version_os    = loader.getAttribute(resultRead_ItemParams,obj,"version_os");
-            resRead.guids.add(resRead_itemparams);
+        if (res_ItemParams != null) {
+            for (Iterator<Object> elem = res_ItemParams.iterator(); elem.hasNext(); ) {
+                ResultRead.ItemParams resRead_itemparams = new ResultRead.ItemParams();
+                Object obj = elem.next();
+                resRead_itemparams.model         = loader.getAttribute(resultRead_ItemParams, obj, "model");
+                resRead_itemparams.imei1         = loader.getAttribute(resultRead_ItemParams, obj, "model");
+                resRead_itemparams.imei2         = loader.getAttribute(resultRead_ItemParams, obj, "imei2");
+                resRead_itemparams.imei3         = loader.getAttribute(resultRead_ItemParams, obj, "imei3");
+                resRead_itemparams.guid          = loader.getAttribute(resultRead_ItemParams, obj, "guid");
+                resRead_itemparams.device        = loader.getAttribute(resultRead_ItemParams, obj, "device");
+                resRead_itemparams.ua            = loader.getAttribute(resultRead_ItemParams, obj, "ua");
+                resRead_itemparams.brand         = loader.getAttribute(resultRead_ItemParams, obj, "brand");
+                resRead_itemparams.product_id    = loader.getAttribute(resultRead_ItemParams, obj, "product_id");
+                resRead_itemparams.guid_source   = loader.getAttribute(resultRead_ItemParams, obj, "guid_source");
+                resRead_itemparams.imsi1         = loader.getAttribute(resultRead_ItemParams, obj, "imsi1");
+                resRead_itemparams.imsi2         = loader.getAttribute(resultRead_ItemParams, obj, "imsi2");
+                resRead_itemparams.imsi3         = loader.getAttribute(resultRead_ItemParams, obj, "imsi3");
+                resRead_itemparams.msisdn1       = loader.getAttribute(resultRead_ItemParams, obj, "msisdn1");
+                resRead_itemparams.msisdn2       = loader.getAttribute(resultRead_ItemParams, obj, "msisdn2");
+                resRead_itemparams.msisdn3       = loader.getAttribute(resultRead_ItemParams, obj, "msisdn3");
+                resRead_itemparams.ua_uuid       = loader.getAttribute(resultRead_ItemParams, obj, "ua_uuid");
+                resRead_itemparams.display_hight = loader.getAttribute(resultRead_ItemParams, obj, "display_hight");
+                resRead_itemparams.android_id    = loader.getAttribute(resultRead_ItemParams, obj, "android_id");
+                resRead_itemparams.display_width = loader.getAttribute(resultRead_ItemParams, obj, "display_width");
+                resRead_itemparams.login         = loader.getAttribute(resultRead_ItemParams, obj, "login");
+                resRead_itemparams.date          = loader.getAttribute(resultRead_ItemParams, obj, "date");
+                resRead_itemparams.manufactor    = loader.getAttribute(resultRead_ItemParams, obj, "manufactor");
+                resRead_itemparams.ip            = loader.getAttribute(resultRead_ItemParams, obj, "ip");
+                resRead_itemparams.version_os    = loader.getAttribute(resultRead_ItemParams, obj, "version_os");
+                resRead.guids.add(resRead_itemparams);
+            }
         }
         return resRead;
     }
 
     @Override
     public void rest_delete(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_delete()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GoogleAdvertisingIdGetter.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_delete",
                 new Object[]{

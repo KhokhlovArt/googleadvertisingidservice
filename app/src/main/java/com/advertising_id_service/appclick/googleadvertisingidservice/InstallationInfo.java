@@ -2,6 +2,7 @@ package com.advertising_id_service.appclick.googleadvertisingidservice;
 
 import android.content.Context;
 
+import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.FilesSearcher;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
