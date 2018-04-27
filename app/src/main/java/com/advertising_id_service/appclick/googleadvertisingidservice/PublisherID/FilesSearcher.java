@@ -7,6 +7,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
+
+import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -20,6 +24,7 @@ import java.util.regex.Pattern;
 public class FilesSearcher {
 
     private Pattern p = null;
+    private long lastFileTime = 0;
 
     private final int FILES = 0;
     private final int DIRECTORIES = 1;
@@ -28,21 +33,10 @@ public class FilesSearcher {
     public List<String> getPublisherFiles(Context cnt, String[] prefix, String seporator, String[] extension) {
         List<String> allFiles = new ArrayList<>();
 
-        if (Build.VERSION.SDK_INT >= 23) {
-            if (!checkPermission(cnt)) {
-                allFiles.add("No permissions for reading the storage");
-                return allFiles;
-            }
-        }
-        else
+        if (!checkPermision(cnt))
         {
-            String permission = "android.permission.READ_EXTERNAL_STORAGE";
-            int res = cnt.checkCallingOrSelfPermission(permission);
-            if (res != PackageManager.PERMISSION_GRANTED)
-            {
-                allFiles.add("No permissions for reading the storage");
-                return allFiles;
-            }
+            allFiles.add("No permissions for reading the storage");
+            return allFiles;
         }
 
         if ((prefix.length == 0)|| (extension.length == 0)
@@ -83,8 +77,26 @@ public class FilesSearcher {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return allFiles;
+    }
+
+    public boolean checkPermision(Context cnt)
+    {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (!checkPermission(cnt)) {
+                return false;
+            }
+        }
+        else
+        {
+            String permission = "android.permission.READ_EXTERNAL_STORAGE";
+            int res = cnt.checkCallingOrSelfPermission(permission);
+            if (res != PackageManager.PERMISSION_GRANTED)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public String ejectApkGUID(String fullID, String pref, String seporator, String extension)
@@ -115,7 +127,15 @@ public class FilesSearcher {
         }
         strId = strId.replaceFirst(seporator, "");
 
-        return strId;
+        File file = new File(fullID);
+        String json_format = strId;
+        if(file.exists()) {
+            json_format = "{";
+            json_format += "\"PablisherID\": \"" + strId + "\",";
+            json_format += "\"Time\": \"" + file.lastModified() + "\"";
+            json_format += "}";
+        }
+        return json_format;
     }
 
     private boolean checkPermission(Context cnt) {
@@ -205,6 +225,13 @@ public class FilesSearcher {
             }
             else {
                 if(objectType != DIRECTORIES && accept(list[i].getName())) {
+//  Если опять надо будет брать только последний по времени файл
+//
+//                    if (lastFileTime < list[i].lastModified()) {
+//                        lastFileTime = list[i].lastModified();
+//                        res.clear();
+//                        res.add(list[i]);
+//                    }
                     res.add(list[i]);
                 }
             }

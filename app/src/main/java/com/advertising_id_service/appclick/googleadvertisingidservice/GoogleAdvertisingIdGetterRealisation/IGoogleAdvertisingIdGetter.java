@@ -1,18 +1,20 @@
 package com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.LoaderManager;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultCreate;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultDelete;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultInstall;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultUpdate;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 public interface IGoogleAdvertisingIdGetter {
@@ -92,12 +94,16 @@ public interface IGoogleAdvertisingIdGetter {
     //*****************************************************************************
     //************************ Методы работы с REST *******************************
     //*****************************************************************************
-    void rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
-    void rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
-    void rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass);
-    ResultRead rest_read(final Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass);
-    void rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
+    ResultCreate  rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
+    ResultUpdate  rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
+    ResultInstall rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass);
+    ResultRead    rest_read(final Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass);
+    ResultDelete  rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass);
 
+    //*****************************************************************************
+    //*************** Методы работы с обновлением библиотеки **********************
+    //*****************************************************************************
+    boolean libUpdate(Context cnt, LoaderManager lm, String GAID);
     //<T> T callExternalMethod(String methodName, HashMap params);
 
 }

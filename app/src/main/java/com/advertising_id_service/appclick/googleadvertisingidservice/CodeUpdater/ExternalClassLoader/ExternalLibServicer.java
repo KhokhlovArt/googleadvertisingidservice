@@ -3,6 +3,7 @@ package com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdat
 import android.content.Context;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -45,6 +46,11 @@ public class ExternalLibServicer {
     public static String getDexFilePath(Context cnt)
     {
         return "" + GlobalParameters.DexFilePath(cnt);
+    }
+
+    public static String getDexFilePathZip(Context cnt)
+    {
+        return "" + GlobalParameters.DexFilePathZip(cnt);
     }
 
 //    public static String getReleaseDexFilePath(Context cnt)

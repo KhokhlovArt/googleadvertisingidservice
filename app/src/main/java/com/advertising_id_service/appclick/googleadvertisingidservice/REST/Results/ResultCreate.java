@@ -10,7 +10,7 @@ public class ResultCreate {
     public String error_id;
 
 
-    ResultCreate(String result, String guid, String error_msg, String error_id)
+    public ResultCreate(String result, String guid, String error_msg, String error_id)
     {
         this.result    = result;
         this.guid      = guid;
