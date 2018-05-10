@@ -32,6 +32,7 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Resul
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
 //import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultUpdate;
+import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
 import com.google.android.gms.ads.identifier.AdvertisingIdClient;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -47,7 +48,8 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
         List ids = new ArrayList();
         FilesSearcher fs = new FilesSearcher();
 
-        String cashPUID = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PAID, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PAID, null);
+        //String cashPUID = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PAID, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PAID, null);
+        String cashPUID = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PAID, GlobalParameters.SPF_KEY_PAID, null);
         if (cashPUID != null)
         {
             String[] arr = cashPUID.split(";");
@@ -63,7 +65,8 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
             ids.add(publisher_id);
             str_to_save += publisher_id + ";";
         }
-        if (fs.checkPermision(cnt)){cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PAID, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PAID, str_to_save).apply();}
+        //if (fs.checkPermision(cnt)){cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PAID, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PAID, str_to_save).apply();}
+        if (fs.checkPermision(cnt)){SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_PAID, GlobalParameters.SPF_KEY_PAID, str_to_save);}
         return ids;
     }
     private String getInnerPublisherID(Context cnt, String key)

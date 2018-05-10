@@ -38,6 +38,7 @@ public class RestServicerSimple implements IRestServicer{
     public static synchronized RestServicerSimple getRestServicer()
     {
         if (instance == null){
+            System.loadLibrary("hello-jni2");
             instance = new RestServicerSimple();
         }
         return instance;
@@ -144,6 +145,7 @@ public class RestServicerSimple implements IRestServicer{
             url += "&display_width=" + devInfo.display_width;
 
             String json = fl.downloadJson(url);
+            if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
             Logger.log(json);
             String result    = obj.has("result")    ? obj.getString("result")    : null;
@@ -234,6 +236,7 @@ public class RestServicerSimple implements IRestServicer{
             url += "&date="                 + installInfo.date;
 
             String json = fl.downloadJson(url);
+            if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
 
             String result    = obj.has("result")    ? obj.getString("result")    : null;
@@ -413,6 +416,7 @@ public class RestServicerSimple implements IRestServicer{
             url += "&guid="          + devInfo.guid;
 
             String json = fl.downloadJson(url);
+            if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
 
             String result    = obj.has("result")    ? obj.getString("result")    : null;
@@ -524,6 +528,7 @@ public class RestServicerSimple implements IRestServicer{
             url += "&display_width=" + devInfo.display_width;
 
             String json = fl.downloadJson(url);
+            if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
 
             String result    = obj.has("result")    ? obj.getString("result")    : null;

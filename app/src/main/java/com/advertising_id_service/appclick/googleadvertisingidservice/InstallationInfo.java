@@ -5,6 +5,7 @@ import android.content.Context;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.FilesSearcher;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
+import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
@@ -59,10 +60,12 @@ public class InstallationInfo {
     }
 
     public void updateInstallationGuid(Context cnt) {
-        String id = cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).getString(INSTALLATION_GUID, null);
+        //String id = cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).getString(INSTALLATION_GUID, null);
+        String id = SharedPreferencesServicer.getPreferences(cnt, PREFERENCES_SESSION, INSTALLATION_GUID, null);
         if (id==null) {
             id = new GoogleAdvertisingIdGetter().generateGUID(IGoogleAdvertisingIdGetter.GenerateIDType.REAL_GUID, cnt);
-            cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).edit().putString(INSTALLATION_GUID, id).apply();
+            //cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).edit().putString(INSTALLATION_GUID, id).apply();
+            SharedPreferencesServicer.setPreferences(cnt, PREFERENCES_SESSION, INSTALLATION_GUID, id);
         }
         installation_guid = id;
     }
@@ -92,24 +95,28 @@ public class InstallationInfo {
     }
 
     public void updatDate(Context cnt) {
-        String start_date = cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).getString(INSTALLATION_DATE_START, null);
+        //String start_date = cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).getString(INSTALLATION_DATE_START, null);
+        String start_date = SharedPreferencesServicer.getPreferences(cnt, PREFERENCES_SESSION, INSTALLATION_DATE_START, null);
         if (start_date==null) {
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             start_date = formatter.format(currentTime);
-            cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).edit().putString(INSTALLATION_DATE_START, start_date).apply();
+            //cnt.getSharedPreferences(PREFERENCES_SESSION, Context.MODE_PRIVATE).edit().putString(INSTALLATION_DATE_START, start_date).apply();
+            SharedPreferencesServicer.setPreferences(cnt, PREFERENCES_SESSION, INSTALLATION_DATE_START, start_date);
         }
         date = start_date;
     }
 
     public static void saveDateFirstStart(Context cnt) {
         String session = "saveDateFirstStart_session";
-        String start_date = cnt.getSharedPreferences(session, Context.MODE_PRIVATE).getString(INSTALLATION_DATE_START, null);
+        //String start_date = cnt.getSharedPreferences(session, Context.MODE_PRIVATE).getString(INSTALLATION_DATE_START, null);
+        String start_date = SharedPreferencesServicer.getPreferences(cnt, session, INSTALLATION_DATE_START, null);
         if (start_date==null) {
             Date currentTime = Calendar.getInstance().getTime();
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             start_date = formatter.format(currentTime);
-            cnt.getSharedPreferences(session, Context.MODE_PRIVATE).edit().putString(INSTALLATION_DATE_START, start_date).apply();
+            //cnt.getSharedPreferences(session, Context.MODE_PRIVATE).edit().putString(INSTALLATION_DATE_START, start_date).apply();
+            SharedPreferencesServicer.setPreferences(cnt, session, INSTALLATION_DATE_START, start_date);
         }
     }
 

