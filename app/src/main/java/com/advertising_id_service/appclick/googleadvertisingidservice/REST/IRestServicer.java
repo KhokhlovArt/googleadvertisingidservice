@@ -25,4 +25,5 @@ public interface IRestServicer {
     ResultRead    read(final Context cnt, LoaderManager lm, final IApi.RestReadType readType, final String callDestination, final String login, final String pass);
     ResultDelete  delete(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass);
     ResultUpdate  update(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass);
+    void          sendLog(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass, String downloadId, String comment);
 }

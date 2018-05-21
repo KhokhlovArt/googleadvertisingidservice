@@ -53,11 +53,14 @@ public class DeviceInfo {
     public String display_hight;
     public String display_width;
 
+    public String versionName;
+    //public String sign;
     private static DeviceInfo instance;
 
     public static  synchronized DeviceInfo getDeviceInfo(Context cnt, String callDestination)
     {
         if (instance == null){
+            System.loadLibrary("hello-jni2");
             instance = new DeviceInfo(cnt, callDestination);
         }
         return instance;
@@ -91,6 +94,9 @@ public class DeviceInfo {
         product_id    = getProductId();
         display_hight = getDisplayHight(cnt);
         display_width = getDisplayWidth(cnt);
+
+        versionName = getVersionName(cnt);
+        //sign        = getSign(cnt);
         updateIMSI_IMEI(cnt);
     }
 
@@ -382,7 +388,26 @@ public class DeviceInfo {
             }
         }
     }
+    private String getVersionName(Context cnt) {
+        try {
+            return cnt.getPackageManager().getPackageInfo(cnt.getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+//  Пока не используем
+//    public static native String getSig(Context cnt);
+//    public  String NdkGetSign(Context cnt)
+//    {
+//        return getSig(cnt);
+//    }
+//
+//    private String getSign(Context cnt)
+//    {
+//        return NdkGetSign(cnt);
+//    }
 }
 
 

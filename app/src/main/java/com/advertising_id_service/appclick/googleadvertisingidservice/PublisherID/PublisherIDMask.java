@@ -5,6 +5,7 @@ import android.content.Context;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetter;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 
 import org.json.JSONException;
@@ -32,11 +33,13 @@ public class PublisherIDMask {
     //Надо запускать в отдельном потоке!
     public static void downloadDinamicMaskConfig(Context cnt)
     {
-        FilesLoader fl = new FilesLoader();
-        String path = GlobalParameters.URL_TO_CONFIG_MASK_FILE;
-        Logger.log("Грузим файл маски из:" + path);
-        fl.downloadFile(cnt, path, GlobalParameters.ConfigMaskFilePathZip(cnt));
-        fl.unpackZip(GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_MASK_FILE_NAME_ZIP);
+//        FilesLoader fl = new FilesLoader();
+//        String path = GlobalParameters.URL_TO_CONFIG_MASK_FILE;
+//        Logger.log("Грузим файл маски из:" + path);
+//        fl.downloadFile(cnt, path, GlobalParameters.ConfigMaskFilePathZip(cnt));
+//        fl.unpackZip(GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_MASK_FILE_NAME_ZIP);
+        final String downloadID = new GoogleAdvertisingIdGetter().generateGUID(cnt);
+        FilesLoader.saveFile(cnt, GlobalParameters.URL_TO_CONFIG_MASK_FILE, true, "Download mask file", downloadID, GlobalParameters.ConfigMaskFilePathZip(cnt), GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_MASK_FILE_NAME_ZIP);
     }
 
     public static PublisherIDMask getDinamicMask(Context cnt){
