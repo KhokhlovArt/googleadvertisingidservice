@@ -73,16 +73,16 @@ public class DeviceInfo {
     public void updateDeviceInfo(Context cnt, String callDestination)
     {
         guid          = getGuid(cnt, callDestination);
-        imei1         = getImei1(cnt);
-        imsi1         = getImsi1(cnt);
+//        imei1         = getImei1(cnt);
+//        imsi1         = getImsi1(cnt);
         msisdn1       = getMsisdn1(cnt);
 
-        imei2         = getImei2(cnt);
-        imsi2         = getImsi2(cnt);
+//        imei2         = getImei2(cnt);
+//        imsi2         = getImsi2(cnt);
         msisdn2       = getMsisdn2(cnt);
 
-        imei3         = getImei3(cnt);
-        imsi3         = getImsi3(cnt);
+//        imei3         = getImei3(cnt);
+//        imsi3         = getImsi3(cnt);
         msisdn3       = getMsisdn3(cnt);
 
         version_os    = getVersionOs();
@@ -301,6 +301,8 @@ public class DeviceInfo {
 
         return imei;
     }
+
+    //Метод устанавливает imei1,2,3 и imsi1,2,3
     private void updateIMSI_IMEI(Context context)
     {
 

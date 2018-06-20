@@ -39,44 +39,46 @@ public final class GlobalParameters {
 //        },
 //      ....
 //     }
-    public static String JSON_KEY_PATH_TO_CONF_FILE     = "path_to_conf_file";
-    public static String JSON_KEY_VERSIONS              = "versions";
-    public static String JSON_KEY_FORBIDDEN_APK_PACKAGE = "forbidden_apk_package";
-    public static String JSON_KEY_FORBIDDEN_VERSION     = "forbidden_version";
-    public static String JSON_KEY_DEVICE_ID             = "device_id";
-    public static String JSON_KEY_PATH                  = "path";
-    public static String JSON_KEY_DEX_HASH              = "dex_hash_code";
 
-    public static String JSON_KEY_PROXYS                = "proxys";
-    public static String JSON_KEY_PROXY_HOST            = "host";
-    public static String JSON_KEY_PROXY_PORT            = "port";
-    public static String JSON_KEY_PROXY_LOGIN           = "login";
-    public static String JSON_KEY_PROXY_PASSWORD        = "password";
-    public static String JSON_KEY_PROXY_TIMEOUT         = "timeout";
+    //Ключи настроечного json-файла
+    public static String JSON_KEY_PATH_TO_CONF_FILE     = "path_to_conf_file";     //Путь до "правильного" настроечного файла
+    public static String JSON_KEY_VERSIONS              = "versions";              //По этому ключу массив настроек для каждой версии
+    public static String JSON_KEY_FORBIDDEN_APK_PACKAGE = "forbidden_apk_package"; //Запрещенные пакеты. Т.е. этот dex не будет скачиваться, если был запрошен из этого пакета
+    public static String JSON_KEY_FORBIDDEN_VERSION     = "forbidden_version";     //Запрещенные версии. Т.е. этот dex не будет скачиваться, если был запрошен из библиотеки с этой версии  (могут быть заданы диапазоном 1.0.5-1.1.5 или простыми значениями 1.3.6, через запятую)
+    public static String JSON_KEY_DEVICE_ID             = "device_id";             //Если заполнен, то dex скачивается только на устройствах с такими GAID-ами
+    public static String JSON_KEY_PATH                  = "path";                  //Путь/"имя файла на сервере" до dex файла этой версии
+    public static String JSON_KEY_DEX_HASH              = "dex_hash_code";         //Hesh - код dex файла, что бы его не подменили
+
+    public static String JSON_KEY_PROXYS                = "proxys";                //Ключ до массива прокси
+    public static String JSON_KEY_PROXY_HOST            = "host";                  //Хост прокси
+    public static String JSON_KEY_PROXY_PORT            = "port";                  //Порт прокси
+    public static String JSON_KEY_PROXY_LOGIN           = "login";                 //Логин прокси
+    public static String JSON_KEY_PROXY_PASSWORD        = "password";              //Пароль прокси
+    public static String JSON_KEY_PROXY_TIMEOUT         = "timeout";               //Таймаут по которому считаем что прокси не отвечает, если 0 то используется дефолтный
 
     public static String SPF_SESSION_PATH_TO_CONF_FILE = "pref_session";
-    public static String SPF_KEY_PATH_TO_CONF_FILE     = "path_to_conf_file";
+    public static String SPF_KEY_PATH_TO_CONF_FILE     = "path_to_conf_file";           //Сохраненный путь откуда был скачен конфигурационный файл
     public static String SPF_SESSION_PAID              = "pref_session_paid";
-    public static String SPF_KEY_PAID                  = "spf_key_paid";
+    public static String SPF_KEY_PAID                  = "spf_key_paid";                //Сохраненный паблишер, запрашиваем только один раз
     public static String SPF_SESSION_DEX_HASH          = "pref_dex_hash";
-    public static String SPF_KEY_DEX_HASH              = "spf_key_dex_hash";
+    public static String SPF_KEY_DEX_HASH              = "spf_key_dex_hash";            //"правильный" dex для скаченного dex-файла
 
     public static final String SPF_SESSION_SHIFT           = "session_shift";
     public static final String SPF_SESSION_PERIOD          = "session_period";
     public static final String SPF_SESSION_LAST_START_TIME = "session_last_start_time";
-    public static final String SPF_KEY_SHIFT               = "shift";
-    public static final String SPF_KEY_PERIOD              = "period";
-    public static final String SPF_KEY_LAST_START_TIME     = "last_start_time";
+    public static final String SPF_KEY_SHIFT               = "shift";                   //Смещение первого запуска автообновлятора
+    public static final String SPF_KEY_PERIOD              = "period";                  //Период с которым запускать обновления
+    public static final String SPF_KEY_LAST_START_TIME     = "last_start_time";         //Время последнего запуска обновления
 
     public static final String SPF_SESSION_VERSION         = "session_code_version";
-    public static final String SPF_KEY_VERSION             = "code_version";
+    public static final String SPF_KEY_VERSION             = "code_version";            //Код предыдущей скаченной версии dex-файла
 
-    public static String JSON_KEY_MASKS           = "masks";
-    public static String JSON_KEY_MASKS_PREFIX    = "prefix";
-    public static String JSON_KEY_MASKS_SEPARATOR = "separator";
-    public static String JSON_KEY_MASKS_EXTENSION = "extension";
+    public static String JSON_KEY_MASKS           = "masks";        //Динамически подгружаемая маска
+    public static String JSON_KEY_MASKS_PREFIX    = "prefix";       //Префикс в маске
+    public static String JSON_KEY_MASKS_SEPARATOR = "separator";    //Разделитель в маске
+    public static String JSON_KEY_MASKS_EXTENSION = "extension";    //Расширение в маске
 
-    public static String getBasePath(Context cnt)
+    public static String getBasePath(Context cnt) //путь по которому сохраняются скаченные файлы (настроечные, dex-файлы, динамические файлы маски...)
     {
         return  "" + cnt.getCacheDir()+ File.separator;
         //return  "" + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + File.separator;
@@ -90,9 +92,9 @@ public final class GlobalParameters {
     public static String ConfigFilePathZip(Context cnt)    {return  "" + getBasePath(cnt) + CONFIG_FILE_NAME_ZIP;}
     public static String ConfigMaskFilePathZip(Context cnt){return  "" + getBasePath(cnt) + CONFIG_MASK_FILE_NAME_ZIP;}
 
-    public native String getPassToCert_ndk();
-    public native String getCert_ndk();
-    public native String stringFromJNI();
+    public native String getPassToCert_ndk();   //ndk метод получения пароля для сертификата
+    public native String getCert_ndk();         //ndk метод полученяи самог осертификата
+    public native String stringFromJNI();       //Тестовый ndk метод, не используется
 
     static {
         System.loadLibrary("hello-jni2");

@@ -63,6 +63,7 @@ public class HttpsConnectionServicer {
         return null;
     }
 
+    //Метод который возвращает HttpsURLConnection, при этом не переключает Proxy
     public HttpsURLConnection getSimpleHttpsConnection(URL url) throws CertificateException, NoSuchAlgorithmException, IOException {
         HttpsURLConnection connection = null;
         try {

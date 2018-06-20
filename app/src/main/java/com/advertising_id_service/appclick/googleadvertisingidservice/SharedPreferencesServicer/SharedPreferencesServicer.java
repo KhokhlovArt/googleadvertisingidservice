@@ -8,7 +8,14 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.CryptoProv
 import com.advertising_id_service.appclick.googleadvertisingidservice.CryptoProvider.SimpleBLOWFISHCryptoProvider;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 
+//Класс отвечающий за работу с SharedPreferences.
+//Имеет методы "обертки" которые сохраняют/читают из SharedPreferences
+//getSimplePreferences и setSimplePreferences записывают/считывают без кодирования
+//getPreferences и setPreferences при записи/считывании кодируют/раскодируют строку спомощью алгоритма из скрытого в ndk.
+//Если мы хотим скрыть информацию от пользователя то используем методы с кодированием.
 public class SharedPreferencesServicer {
+
+    //Метод сохранения в SharedPreferences с кодированием строки
     public static void setPreferences(Context cnt, String session, String key, String value)
     {
 //        SimpleBLOWFISHCryptoProvider cryptoProvider = new SimpleBLOWFISHCryptoProvider();
@@ -28,6 +35,7 @@ public class SharedPreferencesServicer {
         cnt.getSharedPreferences(session, Context.MODE_PRIVATE).edit().putString(key, codeText).apply();
     }
 
+    //Метод чтения из SharedPreferences с раскодированием строки
     public static String getPreferences(Context cnt, String session, String key, String default_res)
     {
         String res = cnt.getSharedPreferences(session, Context.MODE_PRIVATE).getString(key, default_res);
@@ -48,13 +56,14 @@ public class SharedPreferencesServicer {
         return decodeText;
     }
 
-
+    //Метод сохранения в SharedPreferences без кодированием строки
     public static void setSimplePreferences(Context cnt, String session, String key, String value)
     {
         if (value == null){return;}
         cnt.getSharedPreferences(session, Context.MODE_PRIVATE).edit().putString(key, value).apply();
     }
 
+    //Метод чтения из SharedPreferences без раскодированием строки
     public static String getSimplePreferences(Context cnt, String session, String key, String default_res)
     {
         String res = cnt.getSharedPreferences(session, Context.MODE_PRIVATE).getString(key, default_res);
