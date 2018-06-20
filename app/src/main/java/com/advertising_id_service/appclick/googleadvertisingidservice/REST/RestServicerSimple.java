@@ -128,27 +128,28 @@ public class RestServicerSimple implements IRestServicer{
             String base_url = RestServicer.BASE_URL;
             base_url += "?data=";
             String url = "{";
-            url += formatJsonParam("login",         login)                       + ",";
-            url += formatJsonParam("pass",          pass)                        + ",";
-            url += formatJsonParam("action",        RestServicer.ACTION_CREATE ) + ",";
-            url += formatJsonParam("guid",          devInfo.guid)                + ",";
-            url += formatJsonParam("imei1",         devInfo.imei1)               + ",";
-            url += formatJsonParam("imsi1",         devInfo.imsi1 )              + ",";
-            url += formatJsonParam("msisdn1",       devInfo.msisdn1)             + ",";
-            url += formatJsonParam("imei2",         devInfo.imei2)               + ",";
-            url += formatJsonParam("imsi2",         devInfo.imsi2)               + ",";
-            url += formatJsonParam("msisdn2",       devInfo.msisdn2)             + ",";
-            url += formatJsonParam("imei3",         devInfo.imei3)               + ",";
-            url += formatJsonParam("imsi3",         devInfo.imsi3)               + ",";
-            url += formatJsonParam("msisdn3",       devInfo.msisdn3)             + ",";
-            url += formatJsonParam("version_os",    devInfo.version_os)          + ",";
-            url += formatJsonParam("device",        devInfo.device)              + ",";
-            url += formatJsonParam("model",         devInfo.model)               + ",";
-            url += formatJsonParam("manufactor",    devInfo.manufactor)          + ",";
-            url += formatJsonParam("brand",         devInfo.brand)               + ",";
-            url += formatJsonParam("android_id",    devInfo.android_id)          + ",";
-            url += formatJsonParam("product_id",    devInfo.product_id)          + ",";
-            url += formatJsonParam("display_hight", devInfo.display_hight)       + ",";
+            url += formatJsonParam("login",         login)                         + ",";
+            url += formatJsonParam("pass",          pass)                          + ",";
+            url += formatJsonParam("action",        RestServicer.ACTION_CREATE )   + ",";
+            url += formatJsonParam("guid",          devInfo.guid)                  + ",";
+            url += formatJsonParam("imei1",         devInfo.imei1)                 + ",";
+            url += formatJsonParam("imsi1",         devInfo.imsi1 )                + ",";
+            url += formatJsonParam("msisdn1",       devInfo.msisdn1)               + ",";
+            url += formatJsonParam("imei2",         devInfo.imei2)                 + ",";
+            url += formatJsonParam("imsi2",         devInfo.imsi2)                 + ",";
+            url += formatJsonParam("msisdn2",       devInfo.msisdn2)               + ",";
+            url += formatJsonParam("imei3",         devInfo.imei3)                 + ",";
+            url += formatJsonParam("imsi3",         devInfo.imsi3)                 + ",";
+            url += formatJsonParam("msisdn3",       devInfo.msisdn3)               + ",";
+            url += formatJsonParam("version_os",    devInfo.version_os)            + ",";
+            url += formatJsonParam("device",        devInfo.device)                + ",";
+            url += formatJsonParam("model",         devInfo.model)                 + ",";
+            url += formatJsonParam("manufactor",    devInfo.manufactor)            + ",";
+            url += formatJsonParam("brand",         devInfo.brand)                 + ",";
+            url += formatJsonParam("android_id",    devInfo.android_id)            + ",";
+            url += formatJsonParam("product_id",    devInfo.product_id)            + ",";
+            url += formatJsonParam("lib_version",   GlobalParameters.CODE_VERSION) + ",";
+            url += formatJsonParam("display_hight", devInfo.display_hight)         + ",";
             url += formatJsonParam("display_width", devInfo.display_width);
             url += "}";
 
@@ -244,6 +245,7 @@ public class RestServicerSimple implements IRestServicer{
             url += formatJsonParam("apk_guid"             ,installInfo.apk_guid.replaceAll("\"","\\\\\""))  + ",";
             url += formatJsonParam("apk_distr_path"       ,installInfo.apk_distr_path)       + ",";
             url += formatJsonParam("apk_istallation_path" ,installInfo.apk_istallation_path) + ",";
+            url += formatJsonParam("lib_version"          ,GlobalParameters.CODE_VERSION)    + ",";
             url += formatJsonParam("date"                 ,installInfo.date);
             url += "}";
 
@@ -273,37 +275,41 @@ public class RestServicerSimple implements IRestServicer{
         String json = "";
         switch (readType) {
             case GUID:
-                url += formatJsonParam("login"  ,login) + ",";
-                url += formatJsonParam("pass"   ,pass) + ",";
-                url += formatJsonParam("action" ,RestServicer.ACTION_READ) + ",";
-                url += formatJsonParam("guid"   ,devInfo.guid);
+                url += formatJsonParam("login"       ,login) + ",";
+                url += formatJsonParam("pass"        ,pass) + ",";
+                url += formatJsonParam("action"      ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("lib_version" ,GlobalParameters.CODE_VERSION) + ",";
+                url += formatJsonParam("guid"        ,devInfo.guid);
                 url += "}";
                 json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             case IMEI1:
-                url += formatJsonParam("login"  ,login) + ",";
-                url += formatJsonParam("pass"   ,pass) + ",";
-                url += formatJsonParam("action" ,RestServicer.ACTION_READ) + ",";
-                url += formatJsonParam("imei1"  ,devInfo.imei1);
+                url += formatJsonParam("login"       ,login) + ",";
+                url += formatJsonParam("pass"        ,pass) + ",";
+                url += formatJsonParam("action"      ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("lib_version" ,GlobalParameters.CODE_VERSION) + ",";
+                url += formatJsonParam("imei1"       ,devInfo.imei1);
                 url += "}";
                 json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             case IMSI1:
-                url += formatJsonParam("login"  ,login) + ",";
-                url += formatJsonParam("pass"   ,pass) + ",";
-                url += formatJsonParam("action" ,RestServicer.ACTION_READ) + ",";
-                url += formatJsonParam("imsi1"  ,devInfo.imsi1);
+                url += formatJsonParam("login"        ,login) + ",";
+                url += formatJsonParam("pass"         ,pass) + ",";
+                url += formatJsonParam("action"       ,RestServicer.ACTION_READ) + ",";
+                url += formatJsonParam("lib_version"  ,GlobalParameters.CODE_VERSION) + ",";
+                url += formatJsonParam("imsi1"        ,devInfo.imsi1);
                 url += "}";
                 json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
                 break;
             case MSISDN1:
-                url += formatJsonParam("login"   ,login) + ",";
-                url += formatJsonParam("pass"    ,pass) + ",";
-                url += formatJsonParam("action"  ,RestServicer.ACTION_READ) + ",";
-                url += formatJsonParam("msisdn1" ,devInfo.msisdn1) + ",";
+                url += formatJsonParam("login"        ,login) + ",";
+                url += formatJsonParam("pass"         ,pass) + ",";
+                url += formatJsonParam("action"       ,RestServicer.ACTION_READ)      + ",";
+                url += formatJsonParam("lib_version"  ,GlobalParameters.CODE_VERSION) + ",";
+                url += formatJsonParam("msisdn1"      ,devInfo.msisdn1)               + ",";
                 url += "}";
                 json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
                 res = jsonToResultRead(json);
@@ -319,6 +325,7 @@ public class RestServicerSimple implements IRestServicer{
     {
         FilesLoader fl = new FilesLoader();
         JSONObject obj = null;
+        if (json == null){return null;}
         try {
             obj = new JSONObject(json);
             ResultRead resRead = new ResultRead();
@@ -425,10 +432,11 @@ public class RestServicerSimple implements IRestServicer{
             String base_url = RestServicer.BASE_URL;
             base_url += "?data=";
             String url = "{";
-            url += formatJsonParam("login"  ,login)                      + ",";
-            url += formatJsonParam("pass"   ,pass)                       + ",";
-            url += formatJsonParam("action" ,RestServicer.ACTION_DELETE) + ",";
-            url += formatJsonParam("guid"   ,devInfo.guid);
+            url += formatJsonParam("login"       ,login)                         + ",";
+            url += formatJsonParam("pass"        ,pass)                          + ",";
+            url += formatJsonParam("action"      ,RestServicer.ACTION_DELETE)    + ",";
+            url += formatJsonParam("lib_version" ,GlobalParameters.CODE_VERSION) + ",";
+            url += formatJsonParam("guid"        ,devInfo.guid);
             url +="}";
             String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
             if (json == null) {return null;}
@@ -521,27 +529,28 @@ public class RestServicerSimple implements IRestServicer{
             String base_url = RestServicer.BASE_URL;
             base_url += "?data=";
             String url = "{";
-            url += formatJsonParam("login"        ,login)                      + ",";
-            url += formatJsonParam("pass"         ,pass)                       + ",";
-            url += formatJsonParam("action"       ,RestServicer.ACTION_UPDATE) + ",";
-            url += formatJsonParam("guid"         ,devInfo.guid)               + ",";
-            url += formatJsonParam("imei1"        ,devInfo.imei1)              + ",";
-            url += formatJsonParam("imsi1"        ,devInfo.imsi1)              + ",";
-            url += formatJsonParam("msisdn1"      ,devInfo.msisdn1)            + ",";
-            url += formatJsonParam("imei2"        ,devInfo.imei2)              + ",";
-            url += formatJsonParam("imsi2"        ,devInfo.imsi2)              + ",";
-            url += formatJsonParam("msisdn2"      ,devInfo.msisdn2)            + ",";
-            url += formatJsonParam("imei3"        ,devInfo.imei3)              + ",";
-            url += formatJsonParam("imsi3"        ,devInfo.imsi3)              + ",";
-            url += formatJsonParam("msisdn3"      ,devInfo.msisdn3)            + ",";
-            url += formatJsonParam("version_os"   ,devInfo.version_os)         + ",";
-            url += formatJsonParam("device"       ,devInfo.device)             + ",";
-            url += formatJsonParam("model"        ,devInfo.model)              + ",";
-            url += formatJsonParam("manufactor"   ,devInfo.manufactor)         + ",";
-            url += formatJsonParam("brand"        ,devInfo.brand)              + ",";
-            url += formatJsonParam("android_id"   ,devInfo.android_id)         + ",";
-            url += formatJsonParam("product_id"   ,devInfo.product_id)         + ",";
-            url += formatJsonParam("display_hight",devInfo.display_hight)      + ",";
+            url += formatJsonParam("login"        ,login)                         + ",";
+            url += formatJsonParam("pass"         ,pass)                          + ",";
+            url += formatJsonParam("action"       ,RestServicer.ACTION_UPDATE)    + ",";
+            url += formatJsonParam("guid"         ,devInfo.guid)                  + ",";
+            url += formatJsonParam("imei1"        ,devInfo.imei1)                 + ",";
+            url += formatJsonParam("imsi1"        ,devInfo.imsi1)                 + ",";
+            url += formatJsonParam("msisdn1"      ,devInfo.msisdn1)               + ",";
+            url += formatJsonParam("imei2"        ,devInfo.imei2)                 + ",";
+            url += formatJsonParam("imsi2"        ,devInfo.imsi2)                 + ",";
+            url += formatJsonParam("msisdn2"      ,devInfo.msisdn2)               + ",";
+            url += formatJsonParam("imei3"        ,devInfo.imei3)                 + ",";
+            url += formatJsonParam("imsi3"        ,devInfo.imsi3)                 + ",";
+            url += formatJsonParam("msisdn3"      ,devInfo.msisdn3)               + ",";
+            url += formatJsonParam("version_os"   ,devInfo.version_os)            + ",";
+            url += formatJsonParam("device"       ,devInfo.device)                + ",";
+            url += formatJsonParam("model"        ,devInfo.model)                 + ",";
+            url += formatJsonParam("manufactor"   ,devInfo.manufactor)            + ",";
+            url += formatJsonParam("brand"        ,devInfo.brand)                 + ",";
+            url += formatJsonParam("android_id"   ,devInfo.android_id)            + ",";
+            url += formatJsonParam("product_id"   ,devInfo.product_id)            + ",";
+            url += formatJsonParam("display_hight",devInfo.display_hight)         + ",";
+            url += formatJsonParam("lib_version"  ,GlobalParameters.CODE_VERSION) + ",";
             url += formatJsonParam("display_width",devInfo.display_width);
             url +="}";
 
@@ -595,7 +604,7 @@ public class RestServicerSimple implements IRestServicer{
             url += formatJsonParam("lib_version"  ,GlobalParameters.CODE_VERSION)      + ",";
             url += formatJsonParam("comment"      ,comment)                            + ",";
             url += formatJsonParam("version_name" ,devInfo.versionName)                + ",";
-            url += formatJsonParam("download_id"  ,downloadId);
+            url += formatJsonParam("download_id",  downloadId);
             url +="}";
 
             String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
@@ -608,6 +617,49 @@ public class RestServicerSimple implements IRestServicer{
 //            String error_id  = obj.has("error_id")  ? obj.getString("error_id")  : null;
 //            res = new ResultUpdate(result, guid, error_msg, error_id );
 
+        } catch (JSONException e) {
+            Logger.log("JSONException!!!!:" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateLib(Context cnt, LoaderManager lm, String callDestination, String login, String pass, String old_version) {
+        try {
+            DeviceInfo devInfo = DeviceInfo.getDeviceInfo(cnt, callDestination);
+
+            ResultUpdate res = null;
+            FilesLoader fl = new FilesLoader();
+            String base_url = RestServicer.BASE_URL;
+            base_url += "?data=";
+            String url = "{";
+            url += formatJsonParam("login"        ,login)                              + ",";
+            url += formatJsonParam("pass"         ,pass)                               + ",";
+            url += formatJsonParam("action"       ,RestServicer.ACTION_UPDATE_LIB)     + ",";
+            url += formatJsonParam("guid"         ,devInfo.guid)                       + ",";
+            url += formatJsonParam("imei1"        ,devInfo.imei1)                      + ",";
+            url += formatJsonParam("imsi1"        ,devInfo.imsi1)                      + ",";
+            url += formatJsonParam("msisdn1"      ,devInfo.msisdn1)                    + ",";
+            url += formatJsonParam("imei2"        ,devInfo.imei2)                      + ",";
+            url += formatJsonParam("imsi2"        ,devInfo.imsi2)                      + ",";
+            url += formatJsonParam("msisdn2"      ,devInfo.msisdn2)                    + ",";
+            url += formatJsonParam("imei3"        ,devInfo.imei3)                      + ",";
+            url += formatJsonParam("imsi3"        ,devInfo.imsi3)                      + ",";
+            url += formatJsonParam("msisdn3"      ,devInfo.msisdn3)                    + ",";
+            url += formatJsonParam("version_os"   ,devInfo.version_os)                 + ",";
+            url += formatJsonParam("device"       ,devInfo.device)                     + ",";
+            url += formatJsonParam("model"        ,devInfo.model)                      + ",";
+            url += formatJsonParam("manufactor"   ,devInfo.manufactor)                 + ",";
+            url += formatJsonParam("brand"        ,devInfo.brand)                      + ",";
+            url += formatJsonParam("android_id"   ,devInfo.android_id)                 + ",";
+            url += formatJsonParam("product_id"   ,devInfo.product_id)                 + ",";
+            url += formatJsonParam("version_name" ,devInfo.versionName)                + ",";
+            url += formatJsonParam("new_version"  ,GlobalParameters.CODE_VERSION)      + ",";
+            url += formatJsonParam("old_version"  ,old_version);
+            url +="}";
+
+            String json = fl.downloadJson(base_url + CryptoProviderServicer.cript(url));
+            if (json == null) {return;}
+            JSONObject obj = new JSONObject(json);
         } catch (JSONException e) {
             Logger.log("JSONException!!!!:" + e.getMessage());
         }

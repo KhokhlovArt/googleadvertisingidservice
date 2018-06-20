@@ -8,7 +8,7 @@ public class ResultCreate {
 
     public String error_msg;
     public String error_id;
-
+    public String dynamic_data;
 
     public ResultCreate(String result, String guid, String error_msg, String error_id)
     {

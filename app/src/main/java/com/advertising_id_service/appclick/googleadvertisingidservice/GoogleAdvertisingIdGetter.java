@@ -7,31 +7,31 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 
-import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
-import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.GoogleAdvertisingIdGetter_Default;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.GoogleAdvertisingIdGetter_FromExternalLib;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter;
-import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
-import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.CreateParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.DeleteParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.InstallParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.ReadParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.UpdateParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.RestServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultCreate;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultDelete;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultInstall;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultRead;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultUpdate;
+
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.List;
 
-import static com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater.LOADER_NEW_CODE_VERSION;
-import static com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater.LOADER_NEW_MASK_JSON;
+import io.fabric.sdk.android.Fabric;
 
 public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     //*****************************************************************************
@@ -126,108 +126,238 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     //*****************************************************************************
     //************************ Методы работы с REST *******************************
     //*****************************************************************************
-
     //Метод добавляет в базу информацию по устрйоству(его GAID-у). В базе создаётся запись c DeviceInfo.guid
-    // !!!! Метод должен вызываться в отдельном потоке !!!!
-    // @param cnt             - контекст
-    // @param lm              - LoaderManager для асинхронного вызова. Пока не используется!
-    // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
-    // @param login           - логин клиента
-    // @param pass            - пароль клиента
     @Override
-    public ResultCreate rest_create(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
+    public ResultCreate rest_create(final CreateParameters param)
     {
-        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
-            return new GoogleAdvertisingIdGetter_FromExternalLib().rest_create(cnt, lm, callDestination, login, pass);
+        if (param.isAsincStart()) {
+            LoaderManager.LoaderCallbacks<ResultCreate> tmp = new LoaderManager.LoaderCallbacks<ResultCreate>() {
+                @SuppressLint("StaticFieldLeak")
+                @Override
+                public Loader<ResultCreate> onCreateLoader(int i, Bundle bundle) {
+                    return new AsyncTaskLoader<ResultCreate>(param.getCnt()) {
+                        public ResultCreate loadInBackground() {
+                            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_create(param);
+                            } else {
+                                return new GoogleAdvertisingIdGetter_Default().rest_create(param);
+                            }
+                        }
+                    };
+                }
 
+                @Override
+                public void onLoadFinished(Loader<ResultCreate> loader, ResultCreate result) {
+                    if (param.getOnResultListener() == null) return;
+                    param.getOnResultListener().onResult((result == null ? RestServicer.CODE_NULL_RESULT : RestServicer.CODE_OK), result);
+                }
+
+                @Override
+                public void onLoaderReset(Loader<ResultCreate> loader) {
+                }
+            };
+            Loader<ResultCreate> l = param.getLm().restartLoader(RestServicer.LOADER_CREATE, null, tmp);
+            l.forceLoad();
+            return null;
         }
-        else
-        {
-            return new GoogleAdvertisingIdGetter_Default().rest_create(cnt, lm, callDestination, login, pass);
+        else {
+            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_create(param);
+            } else {
+                return new GoogleAdvertisingIdGetter_Default().rest_create(param);
+            }
         }
     }
 
     //Метод добавляет информацию по конкретной инсталяции. InstallationInfo
-    // !!!! Метод должен вызываться в отдельном потоке !!!!
-    // @param cnt             - контекст
-    // @param lm              - LoaderManager для асинхронного вызова. Пока не используется!
-    // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
-    // @param installInfo     - объект содержащий информацию по инсталяции
-    // @param login           - логин клиента
-    // @param pass            - пароль клиента
-    //
     // Пример использования:
-    // GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
-    // InstallationInfo install_info = new InstallationInfo(getApplicationContext(),"",  new PublisherIDMask("GooGames,AppLandGames,AppClickGames,gameclub", "_", ".zip,.apk"));
-    // g.rest_install(getApplicationContext(), getSupportLoaderManager(), "", install_info);
+    //    GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
+    //    PublisherIDMask   m  = new PublisherIDMask("GooGames,AppLandGames,AppClickGames,gameclub","_", ".zip,.apk");
+    //    InstallationInfo  ii = new InstallationInfo(getApplicationContext(), "", m);
+    //    InstallParameters bp = new InstallParameters().setCnt(getApplicationContext())
+    //      .setLm(getSupportLoaderManager())
+    //      .setCallDestination("")
+    //      .setPass("1111")
+    //      .setLogin("test")
+    //      .setAsincStart(true)
+    //      .setForceStart(false)
+    //      .setInstallInfo(ii)
+    //      .setOnResultListener(new IRESTResultListener<ResultInstall>() {
+    //        @Override
+    //        public void onResult(int i, ResultInstall r) {
+    //          if (r!=null) {Log.i("Log", "{" + r.error_msg + "," + r.error_id + "," + r.result + "," + r.guid + "}");}
+    //        }
+    //      });
+    //   g.rest_install(bp);
     //
     @Override
-    public ResultInstall rest_install(final Context cnt, LoaderManager lm, String callDestination, InstallationInfo installInfo, String login, String pass)
+    public ResultInstall rest_install(final InstallParameters param)
     {
-        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
-            return new GoogleAdvertisingIdGetter_FromExternalLib().rest_install(cnt, lm, callDestination, installInfo, login, pass);
+        if (param.isAsincStart()) {
+            LoaderManager.LoaderCallbacks<ResultInstall> tmp = new LoaderManager.LoaderCallbacks<ResultInstall>() {
+                @SuppressLint("StaticFieldLeak")
+                @Override
+                public Loader<ResultInstall> onCreateLoader(int i, Bundle bundle) {
+                    return new AsyncTaskLoader<ResultInstall>(param.getCnt()) {
+                        public ResultInstall loadInBackground() {
+                            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_install(param);
+                            } else {
+                                return new GoogleAdvertisingIdGetter_Default().rest_install(param);
+                            }
+                        }
+                    };
+                }
+
+                @Override
+                public void onLoadFinished(Loader<ResultInstall> loader, ResultInstall result) {
+                    if (param.getOnResultListener() == null) return;
+                    param.getOnResultListener().onResult((result == null ? RestServicer.CODE_NULL_RESULT : RestServicer.CODE_OK), result);
+                }
+
+                @Override
+                public void onLoaderReset(Loader<ResultInstall> loader) {
+                }
+            };
+            Loader<ResultInstall> l = param.getLm().restartLoader(RestServicer.LOADER_INSTALL, null, tmp);
+            l.forceLoad();
+            return null;
         }
-        else
-        {
-            return new GoogleAdvertisingIdGetter_Default().rest_install(cnt, lm, callDestination, installInfo, login, pass);
+        else {
+            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_install(param);
+            } else {
+                return new GoogleAdvertisingIdGetter_Default().rest_install(param);
+            }
         }
     }
 
     //Метод удаляет из базы информации по устрйоству(его GAID-у).
-    // !!!! Метод должен вызываться в отдельном потоке !!!!
-    // @param cnt             - контекст
-    // @param lm              - LoaderManager для асинхронного вызова. Пока не используется!
-    // @param readType        - по какому из параемтров искать в базе (GAID, imei, imsi...)
-    // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
-    // @param login           - логин клиента
-    // @param pass            - пароль клиента
     @Override
-    public ResultRead rest_read(final Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass)
+    public ResultRead rest_read(final ReadParameters param)
     {
-        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
-            return new GoogleAdvertisingIdGetter_FromExternalLib().rest_read(cnt, lm, readType, callDestination, login, pass);
+        if (param.isAsincStart()) {
+            LoaderManager.LoaderCallbacks<ResultRead> tmp = new LoaderManager.LoaderCallbacks<ResultRead>() {
+                @SuppressLint("StaticFieldLeak")
+                @Override
+                public Loader<ResultRead> onCreateLoader(int i, Bundle bundle) {
+                    return new AsyncTaskLoader<ResultRead>(param.getCnt()) {
+                        public ResultRead loadInBackground() {
+                            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_read(param);
+                            } else {
+                                return new GoogleAdvertisingIdGetter_Default().rest_read(param);
+                            }
+                        }
+                    };
+                }
+
+                @Override
+                public void onLoadFinished(Loader<ResultRead> loader, ResultRead result) {
+                    if (param.getOnResultListener() == null) return;
+                    param.getOnResultListener().onResult((result == null ? RestServicer.CODE_NULL_RESULT : RestServicer.CODE_OK), result);
+                }
+
+                @Override
+                public void onLoaderReset(Loader<ResultRead> loader) {
+                }
+            };
+            Loader<ResultRead> l = param.getLm().restartLoader(RestServicer.LOADER_READ, null, tmp);
+            l.forceLoad();
+            return null;
         }
-        else
-        {
-            return new GoogleAdvertisingIdGetter_Default().rest_read(cnt, lm, readType, callDestination, login, pass);
+        else {
+            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_read(param);
+            } else {
+                return new GoogleAdvertisingIdGetter_Default().rest_read(param);
+            }
         }
     }
 
     //Метод удаляет из базы информации по устрйоству(его GAID-у).
-    // !!!! Метод должен вызываться в отдельном потоке !!!!
-    // @param cnt             - контекст
-    // @param lm              - LoaderManager для асинхронного вызова. Пока не используется!
-    // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
-    // @param login           - логин клиента
-    // @param pass            - пароль клиента
     @Override
-    public ResultDelete rest_delete(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
+    public ResultDelete rest_delete(final DeleteParameters param)
     {
-        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
-            return new GoogleAdvertisingIdGetter_FromExternalLib().rest_delete(cnt, lm, callDestination, login, pass);
+        if (param.isAsincStart()) {
+            LoaderManager.LoaderCallbacks<ResultDelete> tmp = new LoaderManager.LoaderCallbacks<ResultDelete>() {
+                @SuppressLint("StaticFieldLeak")
+                @Override
+                public Loader<ResultDelete> onCreateLoader(int i, Bundle bundle) {
+                    return new AsyncTaskLoader<ResultDelete>(param.getCnt()) {
+                        public ResultDelete loadInBackground() {
+                            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_delete(param);
+                            } else {
+                                return new GoogleAdvertisingIdGetter_Default().rest_delete(param);
+                            }
+                        }
+                    };
+                }
+
+                @Override
+                public void onLoadFinished(Loader<ResultDelete> loader, ResultDelete result) {
+                    if (param.getOnResultListener() == null) return;
+                    param.getOnResultListener().onResult((result == null ? RestServicer.CODE_NULL_RESULT : RestServicer.CODE_OK), result);
+                }
+
+                @Override
+                public void onLoaderReset(Loader<ResultDelete> loader) {
+                }
+            };
+            Loader<ResultDelete> l = param.getLm().restartLoader(RestServicer.LOADER_DELETE, null, tmp);
+            l.forceLoad();
+            return null;
         }
-        else
-        {
-            return new GoogleAdvertisingIdGetter_Default().rest_delete(cnt, lm, callDestination, login, pass);
+        else {
+            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_delete(param);
+            } else {
+                return new GoogleAdvertisingIdGetter_Default().rest_delete(param);
+            }
         }
+
     }
 
     //Метод отпроавляет обновление информации по устрйоству(его GAID-у).
-    // !!!! Метод должен вызываться в отдельном потоке !!!!
-    // @param cnt             - контекст
-    // @param lm              - LoaderManager для асинхронного вызова. Пока не используется!
-    // @param callDestination - имя пакета из которого надо получать GAID (если из своего то передать null или "")
-    // @param login           - логин клиента
-    // @param pass            - пароль клиента
     @Override
-    public ResultUpdate rest_update(final Context cnt, LoaderManager lm, String callDestination, String login, String pass)
-    {
-        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
-            return new GoogleAdvertisingIdGetter_FromExternalLib().rest_update(cnt, lm, callDestination, login, pass);
+    public ResultUpdate rest_update(final UpdateParameters param) {
+        if (param.isAsincStart()) {
+            LoaderManager.LoaderCallbacks<ResultUpdate> tmp = new LoaderManager.LoaderCallbacks<ResultUpdate>() {
+                @SuppressLint("StaticFieldLeak")
+                @Override
+                public Loader<ResultUpdate> onCreateLoader(int i, Bundle bundle) {
+                    return new AsyncTaskLoader<ResultUpdate>(param.getCnt()) {
+                        public ResultUpdate loadInBackground() {
+                            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_update(param);
+                            } else {
+                                return new GoogleAdvertisingIdGetter_Default().rest_update(param);
+                            }
+                        }
+                    };
+                }
+
+                @Override
+                public void onLoadFinished(Loader<ResultUpdate> loader, ResultUpdate result) {
+                    if (param.getOnResultListener() == null) return;
+                    param.getOnResultListener().onResult((result == null ? RestServicer.CODE_NULL_RESULT : RestServicer.CODE_OK), result);
+                }
+
+                @Override
+                public void onLoaderReset(Loader<ResultUpdate> loader) {
+                }
+            };
+            Loader<ResultUpdate> l = param.getLm().restartLoader(RestServicer.LOADER_UPDATE, null, tmp);
+            l.forceLoad();
+            return null;
         }
-        else
-        {
-            return new GoogleAdvertisingIdGetter_Default().rest_update(cnt, lm, callDestination, login, pass);
+        else {
+            if (ExternalLibServicer.isExternalLibAccessible(param.getCnt())) { //Если выполняем из внешней библиотеки
+                return new GoogleAdvertisingIdGetter_FromExternalLib().rest_update(param);
+            } else {
+                return new GoogleAdvertisingIdGetter_Default().rest_update(param);
+            }
         }
     }
 
@@ -248,6 +378,24 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
         else
         {
             return new GoogleAdvertisingIdGetter_Default().libUpdate(cnt, lm, GAID);
+        }
+    }
+
+
+    //Метод который надо вызвать в onCreate. Производит инициализацию библиотеки:
+    // - запускает службу автообновления;
+    // - пока всё.
+    @Override
+    public void initialize(Context cnt, LoaderManager lm)
+    {
+        Fabric.with(cnt, new Crashlytics());
+      //  Fabric.with(this, new Crashlytics());
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            new GoogleAdvertisingIdGetter_FromExternalLib().initialize(cnt, lm);
+        }
+        else
+        {
+            new GoogleAdvertisingIdGetter_Default().initialize(cnt, lm);
         }
     }
 }

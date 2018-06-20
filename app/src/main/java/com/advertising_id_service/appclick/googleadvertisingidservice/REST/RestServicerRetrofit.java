@@ -514,4 +514,10 @@ public class RestServicerRetrofit implements IRestServicer  {
     public void sendLog(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass, String downloadId, String comment) {
         //TODO: Реализовать
     }
+
+    @Override
+    public void updateLib(Context cnt, LoaderManager lm, String callDestination, String login, String pass, String old_version) {
+        //TODO: Реализовать
+    }
+
 }

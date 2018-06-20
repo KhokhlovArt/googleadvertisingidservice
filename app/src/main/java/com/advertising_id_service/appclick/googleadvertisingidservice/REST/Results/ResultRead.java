@@ -36,6 +36,7 @@ public class ResultRead {
 
     public String result;
     public String found_by;
+    public String dynamic_data;
     public List<ItemParams> guids;
 }
 

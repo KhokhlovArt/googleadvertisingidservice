@@ -76,7 +76,7 @@ Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProv
     str_blowfish[8] = '\0';
     //**********************************************************************************************
 
-    jclass clazz_test    = (*env)->FindClass(env, "com/mks/test_dynamic_code/TestClass");
+    jclass clazz_test    = (*env)->FindClass(env, "com/advertising_id_service/appclick/googleadvertisingidservice/CryptoProvider/CryptoProviderServicer");
     jclass clazz_JString = (*env)->FindClass(env, "java/lang/String");
     jmethodID m_getBytes = (*env)->GetMethodID(env, clazz_JString, "getBytes", "()[B");
     jmethodID m_toHex    = (*env)->GetStaticMethodID(env, clazz_test, "toHex", "([B)Ljava/lang/String;");
@@ -140,7 +140,7 @@ Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProv
     //**********************************************************************************************
 
     jclass    clazz_JString = (*env)->FindClass(env, "java/lang/String");
-    jclass    clazz_test    = (*env)->FindClass(env, "com/mks/test_dynamic_code/TestClass");
+    jclass    clazz_test    = (*env)->FindClass(env, "com/advertising_id_service/appclick/googleadvertisingidservice/CryptoProvider/CryptoProviderServicer");
     jmethodID m_toByte      = (*env)->GetStaticMethodID(env, clazz_test, "toByte", "(Ljava/lang/String;)[B");
 
     jbyte a[16] = {0}; //'!', 'A', '3', 'v', 'O', '6', 'q', 's', 'p', '2', '@', '#', 'U', 'a', '1', '['};

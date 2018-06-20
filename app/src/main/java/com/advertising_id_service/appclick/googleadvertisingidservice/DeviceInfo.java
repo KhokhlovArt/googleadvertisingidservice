@@ -312,7 +312,7 @@ public class DeviceInfo {
                 if (subscriptionManager.getActiveSubscriptionInfoCount() == 0) {
                     imei1 = telephonyManager.getDeviceId();
                 } else if (subscriptionManager.getActiveSubscriptionInfoCount() == 1) {
-                    if (SubscriptionManager.from(context).getActiveSubscriptionInfoForSimSlotIndex(1) != null) {
+                    if (SubscriptionManager.from(context).getActiveSubscriptionInfoForSimSlotIndex(0) != null) {
                         int subscriptionId1 = SubscriptionManager.from(context).getActiveSubscriptionInfoForSimSlotIndex(0).getSubscriptionId();
                         try {
                             Class c = Class.forName("android.telephony.TelephonyManager");

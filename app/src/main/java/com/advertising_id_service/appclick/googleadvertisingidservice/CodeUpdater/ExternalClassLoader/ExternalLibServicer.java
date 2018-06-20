@@ -47,6 +47,7 @@ public class ExternalLibServicer {
 
         Logger.log("dex_code = " + dexHashCode);
         Logger.log("dex_f_code = " + realDexHash + " size: " + dexFile.length());
+
         if((dexHashCode!= null)&&(dexHashCode.equals(realDexHash))) {
             File codeCacheDir = new File(cnt.getCacheDir() + File.separator + "codeCache");
             codeCacheDir.mkdirs();
@@ -216,7 +217,22 @@ public class ExternalLibServicer {
         return null;
     }
 
-
+    public static boolean setAttribute(Object object, String fieldName, Object fieldValue) {
+        Class<?> clazz = object.getClass();
+        while (clazz != null) {
+            try {
+                Field field = clazz.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(object, fieldValue);
+                return true;
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            } catch (Exception e) {
+                throw new IllegalStateException(e);
+            }
+        }
+        return false;
+    }
     /*
     Метод возвращает параметр из Enum-а из внешнего dex-а
     @params clazz - Класс Enum-а из которого

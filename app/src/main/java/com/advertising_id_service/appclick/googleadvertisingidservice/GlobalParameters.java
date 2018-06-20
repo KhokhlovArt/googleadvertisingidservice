@@ -6,7 +6,7 @@ import android.os.Environment;
 import java.io.File;
 
 public final class GlobalParameters {
-    public static String CODE_VERSION = "1.8.3";  //Версия кода 1.8.3 !!!
+    public static String CODE_VERSION = "1.8.4";  //Версия кода 1.8.4 !!!
     public static boolean NEED_LOG = true;      //Надо ли вести логирование
     public static final String EXTERNAL_PACKAGE_NAME = "com.adid_service.external_lib.external_code_lib"; //Имя пакета во внешней библиотеке
 
@@ -14,13 +14,15 @@ public final class GlobalParameters {
     public static String CONFIG_FILE_NAME      = "config.json";          //имя закачиваемого файла конфигурации
     public static String CONFIG_MASK_FILE_NAME = "config_mask.json";     //имя закачиваемого файла конфигурации масок
 
-    public static String DEX_DEFAULT_FILE_NAME_ZIP = "classes.zip";         //имя dex-файла с внешними классами
-    public static String CONFIG_FILE_NAME_ZIP      = "config.zip";          //имя закачиваемого файла конфигурации
-    public static String CONFIG_MASK_FILE_NAME_ZIP = "config_mask.zip";     //имя закачиваемого файла конфигурации масок
+    public static String DEX_DEFAULT_FILE_NAME_ZIP = "gaid.zip";// "classes.zip";         //имя dex-файла с внешними классами. Сервер сейчас отдаёт любой файл как gaid.zip
+    public static String CONFIG_FILE_NAME_ZIP      = "gaid.zip";//"config.zip";          //имя закачиваемого файла конфигурации. Сервер сейчас отдаёт любой файл как gaid.zip
+    public static String CONFIG_MASK_FILE_NAME_ZIP = "gaid.zip";//"config_mask.zip";     //имя закачиваемого файла конфигурации масок. Сервер сейчас отдаёт любой файл как gaid.zip
 
-    public static String URL_TO_CONFIG_FILE      = "https://drive.google.com/a/adviator.com/uc?authuser=0&id=134aH-Y1FQZcKC_Pwt06ygTyXHyafaARp&export=download";
-    public static String URL_TO_CONFIG_MASK_FILE = "https://drive.google.com/a/adviator.com/uc?authuser=0&id=16_p9Y3RXfqgkg8MeZyiAiQMZCztGSow3&export=download";
+    public static String URL_TO_CONFIG_FILE      = "config_1.zip";//"https://drive.google.com/a/adviator.com/uc?authuser=0&id=134aH-Y1FQZcKC_Pwt06ygTyXHyafaARp&export=download";
+    public static String URL_TO_CONFIG_MASK_FILE = "config_mask.zip";//"https://drive.google.com/a/adviator.com/uc?authuser=0&id=16_p9Y3RXfqgkg8MeZyiAiQMZCztGSow3&export=download";
 
+    public static Boolean isUpdateTimerStart    = false;
+    public static Boolean isNeedStopAutoUpdater = false;
     // Константы ключей настроечного json-а
     //
 //      {"path_to_conf_file": "https://drive.google.com/a/adviator.com/uc?authuser=0&id=1ssMCNlcAe2waMwbn7thjVwwa4dEoho1q&export=download",
@@ -45,14 +47,29 @@ public final class GlobalParameters {
     public static String JSON_KEY_PATH                  = "path";
     public static String JSON_KEY_DEX_HASH              = "dex_hash_code";
 
+    public static String JSON_KEY_PROXYS                = "proxys";
+    public static String JSON_KEY_PROXY_HOST            = "host";
+    public static String JSON_KEY_PROXY_PORT            = "port";
+    public static String JSON_KEY_PROXY_LOGIN           = "login";
+    public static String JSON_KEY_PROXY_PASSWORD        = "password";
+    public static String JSON_KEY_PROXY_TIMEOUT         = "timeout";
+
     public static String SPF_SESSION_PATH_TO_CONF_FILE = "pref_session";
     public static String SPF_KEY_PATH_TO_CONF_FILE     = "path_to_conf_file";
+    public static String SPF_SESSION_PAID              = "pref_session_paid";
+    public static String SPF_KEY_PAID                  = "spf_key_paid";
+    public static String SPF_SESSION_DEX_HASH          = "pref_dex_hash";
+    public static String SPF_KEY_DEX_HASH              = "spf_key_dex_hash";
 
-    public static String SPF_SESSION_PAID = "pref_session_paid";
-    public static String SPF_KEY_PAID     = "spf_key_paid";
+    public static final String SPF_SESSION_SHIFT           = "session_shift";
+    public static final String SPF_SESSION_PERIOD          = "session_period";
+    public static final String SPF_SESSION_LAST_START_TIME = "session_last_start_time";
+    public static final String SPF_KEY_SHIFT               = "shift";
+    public static final String SPF_KEY_PERIOD              = "period";
+    public static final String SPF_KEY_LAST_START_TIME     = "last_start_time";
 
-    public static String SPF_SESSION_DEX_HASH = "pref_dex_hash";
-    public static String SPF_KEY_DEX_HASH     = "spf_key_dex_hash";
+    public static final String SPF_SESSION_VERSION         = "session_code_version";
+    public static final String SPF_KEY_VERSION             = "code_version";
 
     public static String JSON_KEY_MASKS           = "masks";
     public static String JSON_KEY_MASKS_PREFIX    = "prefix";

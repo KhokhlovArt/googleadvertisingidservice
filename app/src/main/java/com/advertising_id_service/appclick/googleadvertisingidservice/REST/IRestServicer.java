@@ -26,4 +26,5 @@ public interface IRestServicer {
     ResultDelete  delete(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass);
     ResultUpdate  update(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass);
     void          sendLog(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass, String downloadId, String comment);
+    void          updateLib(final Context cnt, LoaderManager lm, final String callDestination, final String login, final String pass, String old_version);
 }

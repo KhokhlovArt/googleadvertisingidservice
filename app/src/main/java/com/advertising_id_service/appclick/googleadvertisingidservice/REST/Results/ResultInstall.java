@@ -7,6 +7,7 @@ public class ResultInstall {
 
     public String error_msg;
     public String error_id;
+    public String dynamic_data;
 
     public ResultInstall(String result, String guid, String error_msg, String error_id)
     {
