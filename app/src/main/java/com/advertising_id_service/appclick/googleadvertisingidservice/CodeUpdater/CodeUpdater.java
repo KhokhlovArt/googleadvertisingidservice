@@ -71,73 +71,78 @@ public class CodeUpdater {
         return rootObj;
     }
 
+    private void downloadConfFile(Context cnt, String downloadID)
+    {
+        String url_to_conf_file = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+        String path = (url_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : url_to_conf_file;
+        Logger.log("Грузим файл из:" + path);
+        FilesLoader.saveFile(cnt, path, true, "Download conf file", downloadID, GlobalParameters.ConfigFilePathZip(cnt), GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_FILE_NAME_ZIP);
+    }
+    private void checkConfFile(Context cnt, String downloadID, LoaderManager lm, final String device_id)
+    {
+        String json_str = loadJSONFromAsset(cnt, GlobalParameters.ConfigFilePath(cnt));
+        JSONObject rootObj = getJsonObj(json_str);
+        if (rootObj == null) {
+            return;
+        }
+        try {
+            String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
+            //String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+            String path_to_conf_file_last = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
+            if (!path_to_conf_file.equals(path_to_conf_file_last)) {
+                Logger.log("Надо загрузить конфигурационный файл из другого места:" + path_to_conf_file);
+                Logger.log("Вместо:" + path_to_conf_file_last);
+                //cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
+                SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file);
+                new CodeUpdater().updateCode(cnt, lm, device_id);
+                return;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Logger.log("Ошибка загрузки конфигурационного файла" + e.getMessage());
+        }
+
+        //Когда скачали нужную версию конфигурационного файла, то можем по ней искать нужную нам версию
+        String url = getUrlToLoadDexFile(cnt, device_id);
+        if (url != null) {
+            //sendLog(cnt, lm, downloadID, "Download DEX file");
+            String full_url = getUrlToDownloadFile(cnt, url, "Download conf file", downloadID);
+            FilesLoader.downloadDexFile(cnt, full_url);
+            ExternalLibServicer.clearDexClassLoader();
+        }
+    }
+
     public void updateCode(final Context cnt, final LoaderManager lm, final String device_id)
     {
         final String downloadID = new GoogleAdvertisingIdGetter().generateGUID(cnt);
-        lm.restartLoader(LOADER_NEW_CODE_VERSION, null, new LoaderManager.LoaderCallbacks<String>() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            public Loader<String> onCreateLoader(int i, Bundle bundle) {
-                return new AsyncTaskLoader<String>(cnt) {
-                    public String loadInBackground() {
+        if (lm != null) {
+            lm.restartLoader(LOADER_NEW_CODE_VERSION, null, new LoaderManager.LoaderCallbacks<String>() {
+                @SuppressLint("StaticFieldLeak")
+                @Override
+                public Loader<String> onCreateLoader(int i, Bundle bundle) {
+                    return new AsyncTaskLoader<String>(cnt) {
+                        public String loadInBackground() {
                             String res = null;
-//FilesLoader fl = new FilesLoader();
-                            //String url_to_conf_file = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                            String url_to_conf_file = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                            String path = (url_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : url_to_conf_file;
-                            Logger.log("Грузим файл из:" + path);
-                            //sendLog(cnt, lm, downloadID, "Download conf file");
-//String url = getUrlToDownloadFile(cnt, path,"Download conf file", downloadID);
-//fl.downloadFile(cnt, path, GlobalParameters.ConfigFilePathZip(cnt));
-////fl.downloadFile(cnt, url, GlobalParameters.ConfigFilePathZip(cnt));
-//fl.unpackZip(GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_FILE_NAME_ZIP);
-
-                        FilesLoader.saveFile(cnt, path, true, "Download conf file", downloadID, GlobalParameters.ConfigFilePathZip(cnt), GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_FILE_NAME_ZIP);
-
-                        return res;
-                    }
-                };
-            }
-
-            @Override
-            public void onLoadFinished(Loader<String> loader, String result) {
-
-                String json_str = loadJSONFromAsset(cnt, GlobalParameters.ConfigFilePath(cnt));
-                JSONObject rootObj = getJsonObj(json_str);
-                if(rootObj == null) {return;}
-                try {
-                    String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
-                    //String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                    String path_to_conf_file_last = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                    if (!path_to_conf_file.equals(path_to_conf_file_last))
-                    {
-                        Logger.log("Надо загрузить конфигурационный файл из другого места:" + path_to_conf_file);
-                        Logger.log("Вместо:" + path_to_conf_file_last);
-                        //cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
-                        SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file);
-                        new CodeUpdater().updateCode(cnt, lm, device_id);
-                        return;
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Logger.log("Ошибка загрузки конфигурационного файла" + e.getMessage());
+                            downloadConfFile(cnt, downloadID);
+                            return res;
+                        }
+                    };
                 }
 
-                //Когда скачали нужную версию конфигурационного файла, то можем по ней искать нужную нам версию
-                String url = getUrlToLoadDexFile(cnt, device_id);
-                if (url != null) {
-                    //sendLog(cnt, lm, downloadID, "Download DEX file");
-                    String full_url = getUrlToDownloadFile(cnt, url,"Download conf file", downloadID);
-                    FilesLoader.downloadDexFile(cnt, full_url);
-                    ExternalLibServicer.clearDexClassLoader();
+                @Override
+                public void onLoadFinished(Loader<String> loader, String result) {
+                    checkConfFile(cnt, downloadID, lm, device_id);
                 }
-            }
 
-            @Override
-            public void onLoaderReset(Loader<String> loader) {
-            }
-        }).forceLoad();
-
+                @Override
+                public void onLoaderReset(Loader<String> loader) {
+                }
+            }).forceLoad();
+        }
+        else
+        {
+            new updateLoaders().setCnt(cnt).setDownloadID(downloadID).setDevice_id(device_id).execute();
+        }
     }
 
     public String getUrlToLoadDexFile(Context cnt, String device_id)
@@ -373,5 +378,44 @@ public class CodeUpdater {
     public String getUrlToDownloadFile(Context cnt, String path, String comment, String deviceID)
     {
         return RestServicer.getUrlToDownloadFile(cnt, path, comment, deviceID);
+    }
+
+
+
+
+    /**********************************************************************************************/
+    private class updateLoaders extends AsyncTask<Void, Void, Void> {
+        Context cnt;
+        String downloadID;
+        String device_id;
+        updateLoaders setCnt(Context _cnt){
+            cnt = _cnt;
+            return this;
+        }
+        updateLoaders setDownloadID(String _downloadID){
+            downloadID = _downloadID;
+            return this;
+        }
+        updateLoaders setDevice_id(String _device_id){
+            device_id = _device_id;
+            return this;
+        }
+
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            downloadConfFile(cnt, downloadID);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            checkConfFile(cnt, downloadID, null, device_id);
+        }
     }
 }

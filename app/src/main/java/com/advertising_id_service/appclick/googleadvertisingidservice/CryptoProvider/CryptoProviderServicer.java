@@ -40,7 +40,6 @@ public class CryptoProviderServicer {
 
     public static String getSig(Context cnt)
     {
-
         return getCertificateSHA1Fingerprint(cnt, cnt.getPackageName());
 //        android.content.pm.Signature[] sigs = new android.content.pm.Signature[0];
 //        try {

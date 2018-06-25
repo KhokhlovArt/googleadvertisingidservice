@@ -393,6 +393,7 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
     @Override
     public void initialize(final Context cnt, LoaderManager lm) {
         Logger.log("GoogleAdvertisingIdGetter_Default.Initialize()");
+
         cnt.startService( new Intent(cnt, InitializeService.class));
 
         if (lm!= null) {
