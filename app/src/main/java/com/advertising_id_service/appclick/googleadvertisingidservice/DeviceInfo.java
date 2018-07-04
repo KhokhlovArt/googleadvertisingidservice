@@ -30,47 +30,48 @@ import static android.content.Context.TELEPHONY_SERVICE;
 //    getХХХ, где ХХХ - имя параметра. Методы получающие тот или иной параметр
 //    updateIMSI_IMEI - метод обновляющий параметры IMSI1/2/3 и IMEI1/2/3
 public class DeviceInfo {
-    public String guid;
-    public String imei1;
-    public String imsi1;
-    public String msisdn1;
+    public static String guid;
+    public static String imei1;
+    public static String imsi1;
+    public static String msisdn1;
 
-    public String imei2;
-    public String imsi2;
-    public String msisdn2;
+    public static String imei2;
+    public static String imsi2;
+    public static String msisdn2;
 
-    public String imei3;
-    public String imsi3;
-    public String msisdn3;
+    public static String imei3;
+    public static String imsi3;
+    public static String msisdn3;
 
-    public String version_os;
-    public String device;
-    public String model;
-    public String manufactor;
-    public String brand;
-    public String android_id;
-    public String product_id;
-    public String display_hight;
-    public String display_width;
+    public static String version_os;
+    public static String device;
+    public static String model;
+    public static String manufactor;
+    public static String brand;
+    public static String android_id;
+    public static String product_id;
+    public static String display_hight;
+    public static String display_width;
 
-    public String versionName;
+    public static String versionName;
     //public String sign;
     private static DeviceInfo instance;
 
-    public static  synchronized DeviceInfo getDeviceInfo(Context cnt, String callDestination)
+    public static synchronized DeviceInfo getDeviceInfo(Context cnt, String callDestination)
     {
         if (instance == null){
             System.loadLibrary("hello-jni2");
             instance = new DeviceInfo(cnt, callDestination);
         }
+        updateDeviceInfo(cnt, callDestination); //Каждый раз обновляем информацию об устрйостве, т.к. она может меняться во время использования приложения с библиотекой
         return instance;
     }
 
     private DeviceInfo(Context cnt, String callDestination) {
-        updateDeviceInfo(cnt, callDestination);
+        //updateDeviceInfo(cnt, callDestination);
     }
 
-    public void updateDeviceInfo(Context cnt, String callDestination)
+    public static void updateDeviceInfo(Context cnt, String callDestination)
     {
         guid          = getGuid(cnt, callDestination);
 //        imei1         = getImei1(cnt);
@@ -100,7 +101,7 @@ public class DeviceInfo {
         updateIMSI_IMEI(cnt);
     }
 
-    private String getGuid(Context cnt, String callDestination) {
+    private static String getGuid(Context cnt, String callDestination) {
         String result = null;
         try {
             result = new GoogleAdvertisingIdGetter().getGAID(cnt, callDestination);
@@ -138,7 +139,7 @@ public class DeviceInfo {
         return null;
     }
 
-    private String getMsisdn1(Context context) {
+    private static String getMsisdn1(Context context) {
         TelephonyManager tMgr = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_GRANTED) {
             return tMgr.getLine1Number();
@@ -164,29 +165,29 @@ public class DeviceInfo {
 
     private String getImsi2(Context context) {
         String imsi = null;
-        try {
-            TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-            Method getSubId = TelephonyManager.class.getMethod("getSubscriberId", int.class);
-            SubscriptionManager sm = (SubscriptionManager) context.getSystemService(context.TELEPHONY_SUBSCRIPTION_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                if (sm.getActiveSubscriptionInfoForSimSlotIndex(1) != null) {
-                    imsi = (String) getSubId.invoke(tm, sm.getActiveSubscriptionInfoForSimSlotIndex(1).getSubscriptionId()); // Sim slot 2 IMSI
-                }
-            }
-
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
+//            Method getSubId = TelephonyManager.class.getMethod("getSubscriberId", int.class);
+//            SubscriptionManager sm = (SubscriptionManager) context.getSystemService(context.TELEPHONY_SUBSCRIPTION_SERVICE);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+//                if (sm.getActiveSubscriptionInfoForSimSlotIndex(1) != null) {
+//                    imsi = (String) getSubId.invoke(tm, sm.getActiveSubscriptionInfoForSimSlotIndex(1).getSubscriptionId()); // Sim slot 2 IMSI
+//                }
+//            }
+//
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        } catch (InvocationTargetException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        } catch (NullPointerException e) {
+//            e.printStackTrace();
+//        }
         return imsi;
     }
 
-    private String getMsisdn2(Context context)
+    private static String getMsisdn2(Context context)
     {
         return null;
     }
@@ -208,52 +209,52 @@ public class DeviceInfo {
 
     private String getImsi3(Context context) {
         String imsi = null;
-        try {
-        TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
-            Method getSubId = TelephonyManager.class.getMethod("getSubscriberId", int.class);
-            SubscriptionManager sm = (SubscriptionManager) context.getSystemService(context.TELEPHONY_SUBSCRIPTION_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                if (sm.getActiveSubscriptionInfoForSimSlotIndex(1) != null) {
-                    imsi = (String) getSubId.invoke(tm, sm.getActiveSubscriptionInfoForSimSlotIndex(2).getSubscriptionId()); // Sim slot 3 IMSI
-                }
-            }
-
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-        }
+//        try {
+//        TelephonyManager tm = (TelephonyManager) context.getSystemService(TELEPHONY_SERVICE);
+//            Method getSubId = TelephonyManager.class.getMethod("getSubscriberId", int.class);
+//            SubscriptionManager sm = (SubscriptionManager) context.getSystemService(context.TELEPHONY_SUBSCRIPTION_SERVICE);
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+//                if (sm.getActiveSubscriptionInfoForSimSlotIndex(1) != null) {
+//                    imsi = (String) getSubId.invoke(tm, sm.getActiveSubscriptionInfoForSimSlotIndex(2).getSubscriptionId()); // Sim slot 3 IMSI
+//                }
+//            }
+//
+//        } catch (IllegalAccessException e) {
+//            e.printStackTrace();
+//        } catch (InvocationTargetException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        } catch (NullPointerException e) {
+//            e.printStackTrace();
+//        }
         return imsi;
     }
 
-    private String getMsisdn3(Context context)
+    private static String getMsisdn3(Context context)
     {
         return null;
     }
 
 
-    private String getVersionOs()
+    private static String getVersionOs()
     {
         return "" + Build.VERSION.RELEASE;
     }
 
-    private String getDevice(){return "" + Build.DEVICE;}
+    private static String getDevice(){return "" + Build.DEVICE;}
 
-    private String getModel(){return "" + Build.MODEL;}
+    private static String getModel(){return "" + Build.MODEL;}
 
-    private String getManufactor(){return "" + Build.MANUFACTURER;}
+    private static String getManufactor(){return "" + Build.MANUFACTURER;}
 
-    private String getBrand(){return "" + Build.BRAND;}
+    private static String getBrand(){return "" + Build.BRAND;}
 
-    private String getAndroidId(Context context){return (context != null) ? Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID) : null;}
+    private static String getAndroidId(Context context){return (context != null) ? Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID) : null;}
 
-    private String getProductId(){return "" + Build.PRODUCT;}
+    private static String getProductId(){return "" + Build.PRODUCT;}
 
-    private String getDisplayHight(Context context){
+    private static String getDisplayHight(Context context){
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
@@ -261,7 +262,7 @@ public class DeviceInfo {
         return "" + size.y;
     }
 
-    private String getDisplayWidth(Context context){
+    private static String getDisplayWidth(Context context){
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point size = new Point();
@@ -303,7 +304,7 @@ public class DeviceInfo {
     }
 
     //Метод устанавливает imei1,2,3 и imsi1,2,3
-    private void updateIMSI_IMEI(Context context)
+    private static void updateIMSI_IMEI(Context context)
     {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
@@ -390,7 +391,7 @@ public class DeviceInfo {
             }
         }
     }
-    private String getVersionName(Context cnt) {
+    private static String getVersionName(Context cnt) {
         try {
             return cnt.getPackageManager().getPackageInfo(cnt.getPackageName(), 0).versionName;
         } catch (PackageManager.NameNotFoundException e) {

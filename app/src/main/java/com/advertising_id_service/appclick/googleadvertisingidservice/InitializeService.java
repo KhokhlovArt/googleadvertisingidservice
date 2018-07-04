@@ -137,13 +137,13 @@ public class InitializeService extends Service{
                         }
                     }
 
-                if(currentTime!=null) {
-                    Log.e("12345", "v 2.X.X timer: " + shift + "|" + currentTime.getTime() + " - " + lastStartTime + " > " + getPeriod() + "[" + (currentTime.getTime() - lastStartTime > getPeriod()) + " " + (currentTime.getTime() - lastStartTime) + "]" + isNeedStart + " " + isTimeToUpdate);
-                }
-                else
-                {
-                    Log.e("12345", "v 2.X.X timer: " + shift + "|" + "-" + " - " + "-" + " > " + getPeriod() + "[" + "-" + "]" + isNeedStart + " " + isTimeToUpdate);
-                }
+//                if(currentTime!=null) {
+//                    Log.e("12345", "v 2.X.X timer: " + shift + "|" + currentTime.getTime() + " - " + lastStartTime + " > " + getPeriod() + "[" + (currentTime.getTime() - lastStartTime > getPeriod()) + " " + (currentTime.getTime() - lastStartTime) + "]" + isNeedStart + " " + isTimeToUpdate);
+//                }
+//                else
+//                {
+//                    Log.e("12345", "v 2.X.X timer: " + shift + "|" + "-" + " - " + "-" + " > " + getPeriod() + "[" + "-" + "]" + isNeedStart + " " + isTimeToUpdate);
+//                }
 
                 if (!(isTimeToUpdate || (DefaultSynkTime.equals(currentSTRtime)))) {isInstallStart = false;}
                 if ((isTimeToUpdate || (DefaultSynkTime.equals(currentSTRtime))) && isInstallStart == false) {
@@ -166,7 +166,7 @@ public class InitializeService extends Service{
 
                 }
                 }
-            }, 0, 3000);
+            }, 0, 30000);
         }
         else
         {

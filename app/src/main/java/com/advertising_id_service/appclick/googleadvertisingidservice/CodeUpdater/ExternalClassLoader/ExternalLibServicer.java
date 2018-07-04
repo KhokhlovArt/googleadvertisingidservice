@@ -48,16 +48,16 @@ public class ExternalLibServicer {
         Logger.log("dex_code = " + dexHashCode);
         Logger.log("dex_f_code = " + realDexHash + " size: " + dexFile.length());
 
-        if((dexHashCode!= null)&&(dexHashCode.equals(realDexHash))) {
+//        if((dexHashCode!= null)&&(dexHashCode.equals(realDexHash))) {
             File codeCacheDir = new File(cnt.getCacheDir() + File.separator + "codeCache");
             codeCacheDir.mkdirs();
             dexClassLoader = dexFile.length() == 0 ? null : new DexClassLoader( dexFile.getAbsolutePath(), codeCacheDir.getAbsolutePath(), null, cnt.getClassLoader());
-        }
-        else
-        {
-            Logger.log("Ошибка загрузки dex файла. Не совпадают hash суммы.");
-            dexClassLoader = null;
-        }
+//        }
+//        else
+//        {
+//            Logger.log("Ошибка загрузки dex файла. Не совпадают hash суммы.");
+//            dexClassLoader = null;
+//        }
     }
 
     public static synchronized ExternalLibServicer getServicer(Context cnt)

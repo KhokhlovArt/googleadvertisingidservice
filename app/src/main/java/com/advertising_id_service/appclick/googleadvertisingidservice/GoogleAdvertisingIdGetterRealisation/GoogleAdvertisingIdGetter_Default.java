@@ -263,6 +263,13 @@ public class GoogleAdvertisingIdGetter_Default implements IGoogleAdvertisingIdGe
     }
 
     @Override
+    public void setGAID(Context cnt, String id)
+    {
+        Logger.log("GoogleAdvertisingIdGetter_Default.setGAID()");
+        saveToCache(cnt, id);
+    }
+
+    @Override
     public String getGAID(Context cnt, String callDestination)  throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
         Logger.log("GoogleAdvertisingIdGetter_Default.getGAID()");
         new InstallationInfo().saveDateFirstStart(cnt); // сохраняем время первого запуска(запроса guid-а)

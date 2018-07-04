@@ -6,7 +6,7 @@ import android.os.Environment;
 import java.io.File;
 
 public final class GlobalParameters {
-    public static String CODE_VERSION = "1.8.4";  //Версия кода 1.8.4 !!!
+    public static String CODE_VERSION = "1.8.0";  //Версия кода 1.8.4 !!!
     public static boolean NEED_LOG = true;      //Надо ли вести логирование
     public static final String EXTERNAL_PACKAGE_NAME = "com.adid_service.external_lib.external_code_lib"; //Имя пакета во внешней библиотеке
 

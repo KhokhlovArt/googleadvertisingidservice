@@ -143,6 +143,15 @@ public class GoogleAdvertisingIdGetter_FromExternalLib implements IGoogleAdverti
     }
 
     @Override
+    public void setGAID(Context cnt, String id){
+        Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.setGAID()");
+        ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);
+        Class clazzGoogleAdvertisingIdGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".GoogleAdvertisingIdGetter");
+        Object instance                      = loader.getInstance(clazzGoogleAdvertisingIdGetter, new Object[]{}, new Class[]{});
+        loader.callMethod(clazzGoogleAdvertisingIdGetter, instance, "setGAID", new Object[]{cnt, id}, new Class[]{Context.class, String.class});
+    }
+
+    @Override
     public String getGAID(Context cnt, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
         Logger.log("Текущая версия GoogleAdvertisingIdGetter_FromExternalLib.getGAID()");
         ExternalLibServicer loader = ExternalLibServicer.getServicer(cnt);

@@ -113,6 +113,17 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     }
 
     @Override
+    public void setGAID(Context cnt, String id) {
+        if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
+            new GoogleAdvertisingIdGetter_FromExternalLib().setGAID(cnt, id);
+        }
+        else
+        {
+            new GoogleAdvertisingIdGetter_Default().setGAID(cnt, id);
+        }
+    }
+
+    @Override
     public String getGAID(Context cnt, String callDestination)  throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException {
         if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
             return new GoogleAdvertisingIdGetter_FromExternalLib().getGAID(cnt, callDestination);
@@ -372,13 +383,16 @@ public class GoogleAdvertisingIdGetter implements IGoogleAdvertisingIdGetter {
     //
     @Override
     public boolean libUpdate(Context cnt, LoaderManager lm, String GAID) {
+        boolean res;
         if (ExternalLibServicer.isExternalLibAccessible(cnt)){ //Если выполняем из внешней библиотеки
-            return new GoogleAdvertisingIdGetter_FromExternalLib().libUpdate(cnt, lm, GAID);
+            res = new GoogleAdvertisingIdGetter_FromExternalLib().libUpdate(cnt, lm, GAID);
         }
         else
         {
-            return new GoogleAdvertisingIdGetter_Default().libUpdate(cnt, lm, GAID);
+            res = new GoogleAdvertisingIdGetter_Default().libUpdate(cnt, lm, GAID);
         }
+        ExternalLibServicer.clearDexClassLoader();
+        return res;
     }
 
 

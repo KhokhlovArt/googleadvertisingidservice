@@ -199,13 +199,13 @@ Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_DeviceInfo
 JNIEXPORT jstring JNICALL
 Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProvider_CryptoProviderServicer_codeUrlParamsJNI(
         JNIEnv *env, jclass type, jobject cnt, jstring str_) {
+
     const char *str = (*env)->GetStringUTFChars(env, str_, 0);
 
     jclass    clazz_test  = (*env)->FindClass(env, "com/advertising_id_service/appclick/googleadvertisingidservice/CryptoProvider/CryptoProviderServicer");
     jmethodID m_getSig    = (*env)->GetStaticMethodID(env, clazz_test, "getSig", "(Landroid/content/Context;)Ljava/lang/String;");
     jobject   sign        = (*env)->CallStaticObjectMethod(env, clazz_test, m_getSig, cnt);
     const char *strinp    = (*env)->GetStringUTFChars(env, sign, 0);
-
     int j = 0;
     int str_size = 1;
     while (str[j] != '\0'){j++;str_size++;}
@@ -245,8 +245,9 @@ Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProv
 
     (*env)->ReleaseStringUTFChars(env, str_, str);
     (*env)->ReleaseStringUTFChars(env, sign, strinp);
+    return Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProvider_CryptoProviderServicer_codeFromJNI(env, type, (*env)->NewStringUTF(env, str_res)); // - правильная строчка
 
-    return Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProvider_CryptoProviderServicer_codeFromJNI(env, type, (*env)->NewStringUTF(env, str_res));
-//    return Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProvider_CryptoProviderServicer_codeFromJNI(env, type, str_);
+    ////    return (*env)->NewStringUTF(env, "its jni3");
+////    return Java_com_advertising_1id_1service_appclick_googleadvertisingidservice_CryptoProvider_CryptoProviderServicer_codeFromJNI(env, type, str_);
 
 }

@@ -95,6 +95,11 @@ public interface IGoogleAdvertisingIdGetter {
     // @return  -  List всех идентификаторов из файлов найденых на устройстве
     String getInnerPublisherIDs(PublusherIDType control_parameter, Context cnt, String key);
 
+    //Метод сохраняющий в кэш текущего GAID-а произвольный GAID.
+    //@param cnt - контекст приложения
+    //@param id  - ID который будет сохранен
+    void setGAID(final Context cnt, String id);
+
     String getGAID(final Context cnt, String callDestination) throws GooglePlayServicesNotAvailableException, IOException, GooglePlayServicesRepairableException;
 
     //*****************************************************************************

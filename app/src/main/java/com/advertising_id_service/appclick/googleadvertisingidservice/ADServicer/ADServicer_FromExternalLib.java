@@ -39,12 +39,12 @@ public class ADServicer_FromExternalLib implements IADServicer {
     }
 
     @Override
-    public void initFakeGAID(Context cnt, IGoogleAdvertisingIdGetter g) {
+    public void initFakeGAID(Context cnt, com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter g) {
         Logger.log("Текущая версия ADServicer_FromExternalLib.initFakeGAID(...)");
         ExternalLibServicer loader  = ExternalLibServicer.getServicer(cnt);
         Class clazzADServicerGetter = loader.getExternalClass(cnt, GlobalParameters.EXTERNAL_PACKAGE_NAME + ".ADServicerGetter");
         Object instance             = loader.getInstance(clazzADServicerGetter, new Object[]{}, new Class[]{});
-        loader.callMethod(clazzADServicerGetter, instance, "initFakeGAID", new Object[]{g}, new Class[]{IGoogleAdvertisingIdGetter.class});
+        loader.callMethod(clazzADServicerGetter, instance, "initFakeGAID", new Object[]{cnt, g}, new Class[]{Context.class, com.advertising_id_service.appclick.googleadvertisingidservice.GoogleAdvertisingIdGetterRealisation.IGoogleAdvertisingIdGetter.class});
     }
 
     @Override
